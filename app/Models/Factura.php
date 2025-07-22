@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\FacturaSRIService;
+use App\Models\Cliente;
+use App\Models\FacturaDetalle;
+use App\Models\User;
 
 class Factura extends Model
 {
