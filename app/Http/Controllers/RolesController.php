@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Models\Auditoria;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 
 class RolesController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
         $roles = Role::withCount('users')->with('users')->get();
