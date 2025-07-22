@@ -59,7 +59,6 @@ class CheckFacturaPermissions
             case 'forceDelete':
                 // Solo administradores pueden eliminar permanentemente
                 abort(403, 'Solo los administradores pueden eliminar permanentemente las facturas');
-                break;
         }
         
         return $next($request);

@@ -112,7 +112,7 @@ class Factura extends Model
     public function generarDatosSRI()
     {
         $service = new FacturaSRIService();
-        $datosSRI = $service->prepararDatosSRI($this->subtotal);
+        $datosSRI = $service->prepararDatosSRI((float) $this->subtotal);
         
         $this->fill($datosSRI);
         $this->save();
@@ -260,7 +260,7 @@ class Factura extends Model
             
             if ($clienteEmail) {
                 $asunto = 'Factura #' . $this->getNumeroFormateado() . ' - SowarTech';
-                $mensaje = "Adjunto la factura #{$this->getNumeroFormateado()} por un total de $" . number_format($this->total, 2) . ".\n\nGracias por su compra.\n\nSaludos cordiales,\nEquipo de SowarTech";
+                $mensaje = "Adjunto la factura #{$this->getNumeroFormateado()} por un total de $" . number_format((float) $this->total, 2) . ".\n\nGracias por su compra.\n\nSaludos cordiales,\nEquipo de SowarTech";
                 
                 $enviado = $emailService->enviarFactura($this, $clienteEmail, $asunto, $mensaje);
                 

@@ -20,8 +20,18 @@ class SpatieMiddlewareProvider extends ServiceProvider
     public function boot(): void
     {
         $router = $this->app['router'];
-        $router->aliasMiddleware('role', \Spatie\Permission\Middlewares\RoleMiddleware::class);
-        $router->aliasMiddleware('permission', \Spatie\Permission\Middlewares\PermissionMiddleware::class);
-        $router->aliasMiddleware('role_or_permission', \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class);
+        
+        // Verificar si las clases existen antes de registrarlas
+        if (class_exists(\Spatie\Permission\Middleware\RoleMiddleware::class)) {
+            $router->aliasMiddleware('role', \Spatie\Permission\Middleware\RoleMiddleware::class);
+        }
+        
+        if (class_exists(\Spatie\Permission\Middleware\PermissionMiddleware::class)) {
+            $router->aliasMiddleware('permission', \Spatie\Permission\Middleware\PermissionMiddleware::class);
+        }
+        
+        if (class_exists(\Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class)) {
+            $router->aliasMiddleware('role_or_permission', \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class);
+        }
     }
 }
