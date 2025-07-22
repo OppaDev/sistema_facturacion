@@ -236,9 +236,12 @@ class UserController extends Controller
         }
         
         // Sincronizar estado con Cliente si es cliente
-        if ($user->hasRole('cliente') && $user->cliente) {
-            $user->cliente->estado = $user->estado;
-            $user->cliente->save();
+        if ($user->hasRole('cliente')) {
+            $user->load('cliente');
+            if ($user->cliente) {
+                $user->cliente->estado = $user->estado;
+                $user->cliente->save();
+            }
         }
         
         return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
@@ -256,7 +259,9 @@ class UserController extends Controller
             'motivo.max' => 'El motivo no puede tener más de 500 caracteres.',
         ]);
 
-        if (!\Hash::check($request->admin_password, \Auth::user()->password)) {
+        /** @var User $authUser */
+        $authUser = Auth::user();
+        if (!Hash::check($request->admin_password, $authUser->password)) {
             return back()->withErrors(['admin_password_incorrecta' => 'La contraseña es incorrecta.'])->withInput();
         }
 
@@ -283,8 +288,11 @@ class UserController extends Controller
         }
 
         $user->delete();
-        if ($user->hasRole('cliente') && $user->cliente) {
-            $user->cliente->delete();
+        if ($user->hasRole('cliente')) {
+            $user->load('cliente');
+            if ($user->cliente) {
+                $user->cliente->delete();
+            }
         }
         if (\Auth::id() === $user->id) {
             \Auth::logout();
