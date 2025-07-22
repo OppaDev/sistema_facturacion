@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\Factura;
+use App\Models\FacturaDetalle;
 
 class CreateTestFactura extends Command
 {
@@ -61,6 +62,7 @@ class CreateTestFactura extends Command
             }
 
             // Crear factura
+            /** @var \App\Models\Factura $factura */
             $factura = Factura::create([
                 'cliente_id' => $cliente->id,
                 'usuario_id' => 1,
@@ -72,7 +74,8 @@ class CreateTestFactura extends Command
             ]);
 
             // Crear detalle
-            $factura->detalles()->create([
+            FacturaDetalle::create([
+                'factura_id' => $factura->id,
                 'producto_id' => $producto->id,
                 'cantidad' => 1,
                 'precio_unitario' => 100,

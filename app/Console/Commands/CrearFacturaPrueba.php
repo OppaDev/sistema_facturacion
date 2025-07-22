@@ -81,7 +81,7 @@ class CrearFacturaPrueba extends Command
         $subtotalTotal = 0;
         foreach ($productos as $producto) {
             $cantidad = rand(1, 3);
-            $subtotal = $producto->precio * $cantidad;
+            $subtotal = (float) $producto->precio * $cantidad;
             $subtotalTotal += $subtotal;
             
             FacturaDetalle::create([

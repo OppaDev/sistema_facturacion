@@ -114,9 +114,18 @@ class DashboardController extends Controller
         // CLIENTE
         if ($user->hasRole('cliente')) {
             $cliente = $user->cliente;
-            $comprasCliente = $cliente ? $cliente->facturas()->count() : 0;
-            $facturasCliente = $cliente ? $cliente->facturas()->count() : 0;
-            $totalGastado = $cliente ? $cliente->facturas()->sum('total') : 0;
+            
+            $comprasCliente = 0;
+            $facturasCliente = 0;
+            $totalGastado = 0;
+            
+            if ($cliente instanceof \App\Models\Cliente) {
+                // Usamos query builder directamente para evitar problemas de detección
+                $comprasCliente = \App\Models\Factura::where('cliente_id', $cliente->id)->count();
+                $facturasCliente = \App\Models\Factura::where('cliente_id', $cliente->id)->count();
+                $totalGastado = \App\Models\Factura::where('cliente_id', $cliente->id)->sum('total');
+            }
+            
             return view('dashboard_cliente', compact('comprasCliente', 'facturasCliente', 'totalGastado'));
         }
 
