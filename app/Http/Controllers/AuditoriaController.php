@@ -169,8 +169,8 @@ class AuditoriaController extends Controller
             foreach ($logs as $log) {
                 fputcsv($file, [
                     $log->created_at->format('d/m/Y H:i:s'),
-                    $log->user?->name ?? 'Desconocido',
-                    $log->user?->email ?? '-',
+                    $log->user->name ?? 'Desconocido',
+                    $log->user->email ?? '-',
                     $log->action,
                     class_basename($log->model_type),
                     $log->model_id,

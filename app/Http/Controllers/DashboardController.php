@@ -7,6 +7,8 @@ use App\Models\Producto;
 use App\Models\Factura;
 use App\Models\Categoria;
 use App\Models\FacturaDetalle;
+use App\Models\Auditoria;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;

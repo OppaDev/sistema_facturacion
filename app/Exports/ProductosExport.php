@@ -2,10 +2,9 @@
 namespace App\Exports;
 
 use App\Models\Producto;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use App\Models\Categoria;
 
-class ProductosExport implements FromCollection, WithHeadings
+class ProductosExport
 {
     public function collection()
     {
@@ -20,8 +19,16 @@ class ProductosExport implements FromCollection, WithHeadings
             ];
         });
     }
+    
     public function headings(): array
     {
-        return ['ID', 'Nombre', 'Categoría', 'Stock', 'Precio', 'Estado'];
+        return [
+            'ID',
+            'Nombre',
+            'Categoría',
+            'Stock',
+            'Precio',
+            'Estado'
+        ];
     }
 } 

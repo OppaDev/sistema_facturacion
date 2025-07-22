@@ -6,6 +6,39 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Cliente;
 use App\Models\User;
 
+/**
+ * @property int $id
+ * @property int|null $user_id
+ * @property string $action
+ * @property string $model_type
+ * @property int $model_id
+ * @property string|null $old_values
+ * @property string|null $new_values
+ * @property string|null $description
+ * @property string|null $observacion
+ * @property string|null $ip_address
+ * @property string|null $user_agent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereIpAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereModelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereModelType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereNewValues($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereOldValues($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereUserAgent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Auditoria whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Auditoria extends Model
 {
     protected $fillable = [

@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Factura;
+use App\Models\Cliente;
+use App\Models\FacturaDetalle;
 
 class RegenerarQRyFirmaFacturas extends Command
 {

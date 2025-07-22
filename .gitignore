@@ -37,3 +37,7 @@ USUARIOS_MEJORAS.md
 CONFIGURACION_EMAIL.md
 
 /AdminLTE-master/.github
+
+_ide_helper_models.php
+phpstan-stubs.php
+_ide_helper.php

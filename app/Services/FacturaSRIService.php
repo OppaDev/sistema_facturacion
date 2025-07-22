@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Factura;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 
@@ -112,14 +113,16 @@ class FacturaSRIService
                 'nombre' => $factura->cliente->nombre ?? '',
                 'email' => $factura->cliente->email ?? ''
             ],
-            'productos' => $factura->detalles->map(function($detalle) {
-                return [
-                    'nombre' => $detalle->producto->nombre ?? '',
-                    'cantidad' => $detalle->cantidad,
-                    'precio' => $detalle->precio_unitario,
-                    'subtotal' => $detalle->subtotal
-                ];
-            })->toArray()
+            'productos' => $factura->relationLoaded('detalles') 
+                ? $factura->detalles->map(function($detalle) {
+                    return [
+                        'nombre' => $detalle->producto->nombre ?? '',
+                        'cantidad' => $detalle->cantidad,
+                        'precio' => $detalle->precio_unitario,
+                        'subtotal' => $detalle->subtotal
+                    ];
+                })->toArray()
+                : []
         ];
 
         return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -136,7 +139,7 @@ class FacturaSRIService
             
             // Verificar si GD está disponible
             if (!\extension_loaded('gd')) {
-                \Log::warning('GD extension no disponible, usando placeholder');
+                Log::warning('GD extension no disponible, usando placeholder');
                 return $this->generarQRPlaceholder($contenidoQR);
             }
             
@@ -149,7 +152,7 @@ class FacturaSRIService
             return explode(',', $dataUri, 2)[1] ?? '';
         } catch (\Exception $e) {
             // Si falla la generación de QR, devolver un placeholder
-            \Log::error('Error generando QR: ' . $e->getMessage());
+            Log::error('Error generando QR: ' . $e->getMessage());
             return $this->generarQRPlaceholder($contenidoQR);
         }
     }
