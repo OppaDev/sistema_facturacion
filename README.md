@@ -455,4 +455,3 @@ Para soporte técnico o consultas sobre el sistema, contacta al equipo de desarr
 **Última actualización:** Julio 2025  
 **Laravel:** 11.x  
 **PHP:** 8.2+
-# sistema_facturacion
