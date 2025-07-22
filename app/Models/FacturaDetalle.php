@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Factura;
+use App\Models\Producto;
 
 class FacturaDetalle extends Model
 {

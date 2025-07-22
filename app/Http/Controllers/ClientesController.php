@@ -11,6 +11,8 @@ use App\Http\Requests\StoreClienteRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class ClientesController extends Controller
 {
@@ -46,7 +48,7 @@ class ClientesController extends Controller
             }
             
             if ($request->filled('log_usuario')) {
-                $logs = $logs->whereHas('user', function($q) {
+                $logs = $logs->whereHas('user', function($q) use ($request) {
                     $q->where('id', $request->input('log_usuario'));
                 });
             }
@@ -399,9 +401,9 @@ class ClientesController extends Controller
             
             \Log::info('Intentando eliminar cliente:', ['cliente_id' => $cliente->id, 'nombre' => $cliente->nombre]);
             
-            // Verificar si el modelo tiene SoftDeletes
-            if (!method_exists($cliente, 'delete')) {
-                throw new \Exception('El modelo no tiene método delete');
+            // Verificar si el modelo tiene SoftDeletes trait
+            if (!in_array(SoftDeletes::class, class_uses($cliente))) {
+                throw new \Exception('El modelo no tiene SoftDeletes configurado');
             }
             
             // Intentar el soft delete

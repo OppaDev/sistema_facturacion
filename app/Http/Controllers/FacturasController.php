@@ -54,7 +54,7 @@ class FacturasController extends Controller
             }
             
             if ($request->filled('log_usuario')) {
-                $logs = $logs->whereHas('user', function($q) {
+                $logs = $logs->whereHas('user', function($q) use ($request) {
                     $q->where('id', $request->input('log_usuario'));
                 });
             }
@@ -199,7 +199,7 @@ class FacturasController extends Controller
             DB::commit();
             
             return redirect()->route('facturas.show', $factura)
-                           ->with('success', 'Factura #' . $factura->getNumeroFormateado() . ' creada exitosamente por $' . number_format($factura->total, 2) . ' con autorización SRI: ' . $factura->getEstadoAutorizacion());
+                           ->with('success', 'Factura #' . $factura->getNumeroFormateado() . ' creada exitosamente por $' . number_format((float) $factura->total, 2) . ' con autorización SRI: ' . $factura->getEstadoAutorizacion());
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -253,7 +253,7 @@ class FacturasController extends Controller
         DB::beginTransaction();
         
         try {
-            $factura = Factura::findOrFail($id);
+            $factura = Factura::with('detalles')->findOrFail($id);
             $this->authorize('delete', $factura);
             
             // Validación manual
@@ -324,7 +324,7 @@ class FacturasController extends Controller
                 return redirect()->back()->with('error', 'Contraseña incorrecta.');
             }
 
-            $factura = Factura::onlyTrashed()->findOrFail($id);
+            $factura = Factura::onlyTrashed()->with('detalles')->findOrFail($id);
             $this->authorize('restore', $factura);
             
             // Actualizar stock al desanular (restaurar)
