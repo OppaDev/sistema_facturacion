@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Cliente;
+use App\Models\User;
 
 class Auditoria extends Model
 {
