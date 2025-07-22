@@ -90,6 +90,11 @@ class FacturaSRIService
      */
     public function generarContenidoQR(Factura $factura): string
     {
+        // Cargar relaciones si no están cargadas
+        if (!$factura->relationLoaded('detalles')) {
+            $factura->load(['detalles.producto', 'cliente']);
+        }
+        
         $datos = [
             'ruc' => self::RUC_EMISOR,
             'tipoDoc' => '01', // Factura
@@ -98,7 +103,7 @@ class FacturaSRIService
             'ptoEmi' => '001',
             'secuencial' => $factura->numero_secuencial,
             'fechaEmision' => $factura->fecha_emision,
-            'total' => number_format($factura->total, 2, '.', ''),
+            'total' => number_format((float) $factura->total, 2, '.', ''),
             'tipoPago' => $factura->forma_pago,
             'ambiente' => 'PROD',
             'cua' => $factura->cua,
@@ -125,6 +130,7 @@ class FacturaSRIService
      */
     public function generarImagenQR(Factura $factura): string
     {
+        $contenidoQR = '';
         try {
             $contenidoQR = $this->generarContenidoQR($factura);
             
@@ -140,8 +146,7 @@ class FacturaSRIService
             $writer = new PngWriter();
             $result = $writer->write($qr);
             $dataUri = $result->getDataUri();
-            $base64 = explode(',', $dataUri, 2)[1] ?? null;
-            return $base64;
+            return explode(',', $dataUri, 2)[1] ?? '';
         } catch (\Exception $e) {
             // Si falla la generación de QR, devolver un placeholder
             \Log::error('Error generando QR: ' . $e->getMessage());
