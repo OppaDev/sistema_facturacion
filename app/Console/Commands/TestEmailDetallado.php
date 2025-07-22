@@ -42,7 +42,7 @@ class TestEmailDetallado extends Command
             $factura->subtotal = 100.00;
             $factura->iva = 12.00;
             $factura->total = 112.00;
-            $factura->estado = 'EMITIDA';
+            $factura->estado = 'activa';
             $factura->usuario_id = 1;
             $factura->save();
             
@@ -69,16 +69,18 @@ class TestEmailDetallado extends Command
         // 4. Verificar vistas
         $this->info("\n👁️ Verificando vistas...");
         
-        if (view()->exists('emails.factura')) {
+        try {
+            view('emails.factura');
             $this->info("✅ Vista emails.factura disponible");
-        } else {
-            $this->error("❌ Vista emails.factura no encontrada");
+        } catch (\Exception $e) {
+            $this->error("❌ Vista emails.factura no encontrada: " . $e->getMessage());
         }
         
-        if (view()->exists('facturas.pdf')) {
+        try {
+            view('facturas.pdf');
             $this->info("✅ Vista facturas.pdf disponible");
-        } else {
-            $this->error("❌ Vista facturas.pdf no encontrada");
+        } catch (\Exception $e) {
+            $this->error("❌ Vista facturas.pdf no encontrada: " . $e->getMessage());
         }
         
         // 5. Probar generación de PDF
@@ -126,13 +128,20 @@ class TestEmailDetallado extends Command
         
         // 8. Verificar logs
         $this->info("\n📋 Últimos logs de email:");
-        $logs = Log::getRecentLogs();
-        if ($logs) {
-            foreach (array_slice($logs, -5) as $log) {
-                $this->line("  " . $log);
+        try {
+            // Leer los últimos logs del archivo de logs
+            $logPath = storage_path('logs/laravel.log');
+            if (file_exists($logPath)) {
+                $logs = file($logPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $recentLogs = array_slice($logs, -5);
+                foreach ($recentLogs as $log) {
+                    $this->line("  " . $log);
+                }
+            } else {
+                $this->info("  No hay archivo de logs disponible");
             }
-        } else {
-            $this->info("  No hay logs recientes");
+        } catch (\Exception $e) {
+            $this->info("  Error leyendo logs: " . $e->getMessage());
         }
         
         $this->info("\n🎯 Diagnóstico completado");
