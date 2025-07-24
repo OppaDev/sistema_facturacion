@@ -491,4 +491,11 @@ class UserController extends Controller
         $user->save();
         return redirect()->route('dashboard')->with('success', 'Eliminación de cuenta cancelada.');
     }
+
+    public function crearTokenAcceso(Request $request)
+    {
+        $user = \App\Models\User::find($request->usuario);
+        $token = $user->createToken($request->token_name);
+        return redirect()->route('dashboard')->with('token_generado', $token->plainTextToken);
+    }
 }
