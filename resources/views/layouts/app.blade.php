@@ -153,6 +153,16 @@
             </li>
             @endrole
 
+            <!-- Tokens API -->
+            @role('Administrador')
+            <li class="menu-item {{ request()->routeIs('tokens.*') ? 'active' : '' }}">
+              <a href="{{ route('tokens.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-key"></i>
+                <div class="text-truncate" data-i18n="Tokens">Tokens API</div>
+              </a>
+            </li>
+            @endrole
+
             <!-- Roles -->
             @role('Administrador')
             <li class="menu-item {{ request()->routeIs('roles.*') ? 'active' : '' }}">
