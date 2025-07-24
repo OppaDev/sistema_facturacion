@@ -15,31 +15,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-// Ruta API para verificar estado del usuario
-// Route::get('/api/check-user-status', function () {
-//     if (!auth()->check()) {
-//         return response()->json(['error' => 'Usuario no autenticado'], 401);
-//     }
-    
-//     $user = auth()->user();
-    
-//     if ($user->deleted_at) {
-//         return response()->json(['error' => 'Su cuenta ha sido eliminada. Contacte soporte si es un error.'], 401);
-//     }
-    
-//     if ($user->pending_delete_at) {
-//         $dias = 3 - \Carbon\Carbon::parse($user->pending_delete_at)->diffInDays(now());
-//         return response()->json(['error' => 'Su cuenta está en proceso de eliminación. Se eliminará definitivamente en ' . $dias . ' día(s).'], 401);
-//     }
-    
-//     if ($user->estado === 'inactivo') {
-//         return response()->json(['error' => 'Su cuenta ha sido suspendida.'], 401);
-//     }
-    
-//     return response()->json(['status' => 'ok']);
-// })->middleware('auth');
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'check.user.status'])->name('dashboard');
+
+Route::post('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'check.user.status'])->name('dashboard');
 
 Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -49,6 +29,7 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
 });
 
 Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () {
+
     // Clientes: Acceso para Administrador y Secretario
     Route::resource('clientes', ClientesController::class)
         ->middleware('role:Administrador|Secretario');
@@ -132,7 +113,13 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
         Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
         Route::post('/users/cancelar-borrado', [UserController::class, 'cancelarBorradoCuenta'])->name('users.cancelarBorradoCuenta');
+        
+        // Rutas para gestión de tokens API
+        Route::get('/tokens', [UserController::class, 'indexTokens'])->name('tokens.index');
+        Route::post('/tokens/crear', [UserController::class, 'crearTokenAcceso'])->name('crearTokenAcceso');
+        Route::delete('/tokens/{token}', [UserController::class, 'eliminarToken'])->name('tokens.destroy');
     });
+
 });
 
 require __DIR__.'/auth.php';

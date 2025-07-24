@@ -17,6 +17,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $usuarios = User::all();
         $user = auth()->user();
 
         // ADMINISTRADOR: dashboard original
@@ -88,7 +89,7 @@ class DashboardController extends Controller
             }
             $ultimosClientes = \App\Models\Cliente::orderBy('created_at', 'desc')->limit(5)->get();
             $logsAuditoria = \App\Models\Auditoria::with('user')->orderBy('created_at', 'desc')->limit(5)->get();
-            return view('dashboard', compact(
+            return view('dashboard', compact('usuarios',
                 'clientesActivos',
                 'totalProductos',
                 'facturasMes',

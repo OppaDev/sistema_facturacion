@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use App\Models\Cliente;
 use Spatie\Permission\Models\Role;
+use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Crypt;
 
 class UserController extends Controller
 {
@@ -168,7 +170,7 @@ class UserController extends Controller
             // Registrar en auditoría
             Log::info('Usuario creado', [
                 'user_id' => $user->id,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
                 'email' => $user->email,
                 'roles' => $request->roles
             ]);
@@ -490,5 +492,154 @@ class UserController extends Controller
         $user->pending_delete_at = null;
         $user->save();
         return redirect()->route('dashboard')->with('success', 'Eliminación de cuenta cancelada.');
+    }
+
+    // Mostrar vista de gestión de tokens
+    public function indexTokens()
+    {
+        // Obtener usuarios activos con sus tokens
+        $usuarios = User::with(['tokens' => function($query) {
+            $query->select('id', 'tokenable_id', 'tokenable_type', 'name', 'plaintext_token', 'last_used_at', 'created_at', 'abilities');
+        }, 'roles'])->where('estado', 'activo')->get();
+        
+        // Obtener clientes activos con sus tokens (incluyendo soft deletes)
+        $clientes = Cliente::with(['tokens' => function($query) {
+            $query->select('id', 'tokenable_id', 'tokenable_type', 'name', 'plaintext_token', 'last_used_at', 'created_at', 'abilities');
+        }])->where('estado', 'activo')->whereNull('deleted_at')->get();
+        
+        // Función para desencriptar tokens
+        $desencriptarTokens = function($entidad) {
+            foreach ($entidad->tokens as $token) {
+                // Debug: Log el estado del token
+                Log::info('Token debug', [
+                    'token_id' => $token->id,
+                    'token_name' => $token->name,
+                    'tokenable_type' => $token->tokenable_type,
+                    'has_plaintext_token' => !empty($token->plaintext_token),
+                    'plaintext_token_length' => $token->plaintext_token ? strlen($token->plaintext_token) : 0
+                ]);
+                
+                if ($token->plaintext_token) {
+                    try {
+                        $decrypted = Crypt::decryptString($token->plaintext_token);
+                        $token->decrypted_token = $decrypted;
+                        Log::info('Token desencriptado exitosamente', [
+                            'token_id' => $token->id,
+                            'decrypted_length' => strlen($decrypted)
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Error al desencriptar token', [
+                            'token_id' => $token->id,
+                            'error' => $e->getMessage()
+                        ]);
+                        $token->decrypted_token = 'Error al desencriptar: ' . $e->getMessage();
+                    }
+                } else {
+                    $token->decrypted_token = 'Token no encriptado (campo vacío)';
+                    Log::warning('Token sin plaintext_token', ['token_id' => $token->id]);
+                }
+            }
+        };
+        
+        // Desencriptar tokens de usuarios
+        foreach ($usuarios as $usuario) {
+            $desencriptarTokens($usuario);
+        }
+        
+        // Desencriptar tokens de clientes
+        foreach ($clientes as $cliente) {
+            $desencriptarTokens($cliente);
+        }
+        
+        return view('token.index', compact('usuarios', 'clientes'));
+    }
+
+    // Crear token de acceso para API
+    public function crearTokenAcceso(Request $request)
+    {
+        $request->validate([
+            'entidad_tipo' => 'required|in:usuario,cliente',
+            'entidad_id' => 'required|integer',
+            'token_name' => 'required|string|max:255|min:3',
+        ], [
+            'entidad_tipo.required' => 'Debe seleccionar el tipo de entidad.',
+            'entidad_tipo.in' => 'El tipo de entidad debe ser usuario o cliente.',
+            'entidad_id.required' => 'Debe seleccionar una entidad.',
+            'entidad_id.integer' => 'El ID de la entidad debe ser un número válido.',
+            'token_name.required' => 'El nombre del token es obligatorio.',
+            'token_name.min' => 'El nombre del token debe tener al menos 3 caracteres.',
+            'token_name.max' => 'El nombre del token no puede tener más de 255 caracteres.',
+        ]);
+
+        try {
+            // Validar existencia de la entidad según el tipo
+            if ($request->entidad_tipo === 'usuario') {
+                $entidad = User::where('estado', 'activo')->findOrFail($request->entidad_id);
+                $entidadNombre = $entidad->name;
+            } else {
+                $entidad = Cliente::where('estado', 'activo')->findOrFail($request->entidad_id);
+                $entidadNombre = $entidad->nombre;
+            }
+            
+            $token = $entidad->createToken($request->token_name);
+            
+            // Obtener el registro del token recién creado y encriptar el plaintext
+            $personalAccessToken = $token->accessToken;
+            $personalAccessToken->plaintext_token = Crypt::encryptString($token->plainTextToken);
+            $personalAccessToken->save();
+            
+            // Registrar en auditoría
+            Log::info('Token API creado', [
+                'entidad_tipo' => $request->entidad_tipo,
+                'entidad_id' => $entidad->id,
+                'entidad_nombre' => $entidadNombre,
+                'token_name' => $request->token_name,
+                'created_by' => Auth::id(),
+            ]);
+
+            return redirect()->route('tokens.index')->with('token_generado', $token->plainTextToken);
+        } catch (\Exception $e) {
+            Log::error('Error al crear token', [
+                'error' => $e->getMessage(),
+                'entidad_tipo' => $request->entidad_tipo,
+                'entidad_id' => $request->entidad_id,
+                'token_name' => $request->token_name,
+            ]);
+
+            return redirect()->back()->with('error', 'Error al crear el token. Intente nuevamente.');
+        }
+    }
+
+    // Eliminar token de acceso
+    public function eliminarToken(Request $request, $tokenId)
+    {
+        $request->validate([
+            'admin_password' => 'required',
+        ], [
+            'admin_password.required' => 'La contraseña de administrador es obligatoria.',
+        ]);
+
+        if (!Hash::check($request->admin_password, Auth::user()->password)) {
+            return back()->withErrors(['admin_password' => 'La contraseña es incorrecta.']);
+        }
+
+        try {
+            $token = PersonalAccessToken::findOrFail($tokenId);
+            $tokenName = $token->name;
+            $userId = $token->tokenable_id;
+            
+            $token->delete();
+
+            // Registrar en auditoría
+            Log::info('Token API eliminado', [
+                'token_name' => $tokenName,
+                'user_id' => $userId,
+                'deleted_by' => Auth::id(),
+            ]);
+
+            return redirect()->route('tokens.index')->with('success', 'Token eliminado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al eliminar el token.');
+        }
     }
 }

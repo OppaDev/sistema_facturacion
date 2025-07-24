@@ -9,120 +9,20 @@ use App\Models\Cliente;
 use App\Models\FacturaDetalle;
 use App\Models\User;
 
-/**
- * @property int $id
- * @property int $cliente_id
- * @property int|null $usuario_id
- * @property int|null $factura_original_id
- * @property string $ruc_emisor
- * @property string $razon_social_emisor
- * @property string $direccion_emisor
- * @property string|null $num_autorizacion_sri
- * @property string|null $secuencial
- * @property string $establecimiento
- * @property string $punto_emision
- * @property string|null $numero_factura
- * @property string|null $cua
- * @property string|null $firma_digital
- * @property string|null $codigo_qr
- * @property string|null $forma_pago
- * @property string|null $fecha_autorizacion
- * @property numeric $subtotal
- * @property numeric $iva
- * @property numeric $total
- * @property string $estado
- * @property string|null $motivo_anulacion
- * @property int|null $created_by
- * @property int|null $updated_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $numero_secuencial
- * @property \Illuminate\Support\Carbon|null $fecha_emision
- * @property string|null $hora_emision
- * @property string $ambiente
- * @property string $tipo_emision
- * @property string $tipo_documento
- * @property string|null $mensaje_autorizacion
- * @property string|null $contenido_qr
- * @property string|null $imagen_qr
- * @property string $estado_firma
- * @property \Illuminate\Support\Carbon|null $fecha_firma
- * @property string $estado_emision
- * @property \Illuminate\Support\Carbon|null $fecha_emision_email
- * @property-read User|null $actualizador
- * @property-read Cliente $cliente
- * @property-read User|null $creador
- * @property-read \Illuminate\Database\Eloquent\Collection<int, FacturaDetalle> $detalles
- * @property-read int|null $detalles_count
- * @property-read Factura|null $facturaOriginal
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Factura> $facturasModificadas
- * @property-read int|null $facturas_modificadas_count
- * @property-read User|null $usuario
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura autorizadas()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura conDatosSRI()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereAmbiente($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereCodigoQr($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereContenidoQr($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereCua($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereDireccionEmisor($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereEstablecimiento($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereEstadoEmision($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereEstadoFirma($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFacturaOriginalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFechaAutorizacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFechaEmision($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFechaEmisionEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFechaFirma($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFirmaDigital($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereFormaPago($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereHoraEmision($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereImagenQr($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereIva($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereMensajeAutorizacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereMotivoAnulacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereNumAutorizacionSri($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereNumeroFactura($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereNumeroSecuencial($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura wherePuntoEmision($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereRazonSocialEmisor($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereRucEmisor($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereSecuencial($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereSubtotal($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereTipoDocumento($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereTipoEmision($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereTotal($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura whereUsuarioId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura withTrashed(bool $withTrashed = true)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Factura withoutTrashed()
- * @mixin \Eloquent
- */
 class Factura extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'cliente_id', 
+        'cliente_id',
         'usuario_id',
         'factura_original_id',
-        'subtotal', 
-        'iva', 
-        'total', 
-        'estado', 
+        'subtotal',
+        'iva',
+        'total',
+        'estado',
         'motivo_anulacion',
-        'created_by', 
+        'created_by',
         'updated_by',
         // Campos SRI
         'numero_secuencial',

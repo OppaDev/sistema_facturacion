@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
+  <div class="container-xxl flex-grow-1 container-p-y">
   <!-- Notificaciones visuales -->
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show shadow mb-4" role="alert">
@@ -85,6 +85,45 @@
     </div>
     @endif
   </div>
+
+  <!-- Accesos rápidos para Administrador -->
+  @if(Auth::user()->hasRole('Administrador'))
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bx bx-zap me-2"></i> Accesos Rápidos
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+              <a href="{{ route('users.index') }}" class="btn btn-outline-primary d-flex align-items-center gap-2 w-100">
+                <i class="bx bx-user"></i> Gestionar Usuarios
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a href="{{ route('tokens.index') }}" class="btn btn-outline-info d-flex align-items-center gap-2 w-100">
+                <i class="bx bx-key"></i> Tokens API
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a href="{{ route('auditorias.index') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 w-100">
+                <i class="bx bx-history"></i> Auditoría
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a href="{{ route('roles.index') }}" class="btn btn-outline-warning d-flex align-items-center gap-2 w-100">
+                <i class="bx bx-shield"></i> Roles
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  @endif
 
   <!-- Gráfica de ventas y widgets -->
   @if(Auth::user()->hasRole('Administrador') || Auth::user()->hasRole('Ventas'))
