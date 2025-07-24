@@ -103,12 +103,12 @@
               </a>
             </li>
 
-            <!-- Clientes -->
+            <!-- Usuarios/Clientes -->
             @role('Administrador|Secretario')
-            <li class="menu-item {{ request()->routeIs('clientes.*') ? 'active' : '' }}">
-              <a href="{{ route('clientes.index') }}" class="menu-link">
+            <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+              <a href="{{ route('users.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>
-                <div class="text-truncate" data-i18n="Clientes">Clientes</div>
+                <div class="text-truncate" data-i18n="Usuarios">Usuarios/Clientes</div>
               </a>
             </li>
             @endrole

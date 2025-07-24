@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Cliente;
+use App\Models\User;
 use App\Models\Producto;
 use App\Models\Factura;
 use App\Models\FacturaDetalle;
@@ -33,17 +33,22 @@ class CreateTestFactura extends Command
 
         try {
             // Buscar o crear cliente
-            $cliente = Cliente::first();
+            $cliente = User::whereHas('roles', function($query) {
+                $query->where('name', 'Cliente');
+            })->first();
+            
             if (!$cliente) {
                 $this->info('No hay clientes. Creando uno...');
-                $cliente = Cliente::create([
-                    'nombre' => 'Cliente Prueba',
+                $cliente = User::create([
+                    'name' => 'Cliente Prueba',
                     'email' => 'cliente@prueba.com',
+                    'password' => bcrypt('password'),
                     'telefono' => '0999999999'
                 ]);
+                $cliente->assignRole('Cliente');
                 $this->info("Cliente creado con ID: {$cliente->id}");
             } else {
-                $this->info("Usando cliente existente: {$cliente->nombre}");
+                $this->info("Usando cliente existente: {$cliente->name}");
             }
 
             // Buscar o crear producto

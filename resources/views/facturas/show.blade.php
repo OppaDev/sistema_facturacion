@@ -124,7 +124,7 @@
                         <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label text-muted"><i class="bx bx-user me-2 text-info"></i>Cliente</label>
-                <div class="fw-semibold fs-5">{{ $factura->cliente->nombre ?? 'Cliente eliminado' }}</div>
+                <div class="fw-semibold fs-5">{{ $factura->cliente->name ?? 'Cliente eliminado' }}</div>
                                 @if($factura->cliente)
                   <small class="text-muted"><i class="bx bx-envelope me-1"></i>{{ $factura->cliente->email }}</small>
                                 @endif

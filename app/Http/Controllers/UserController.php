@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
-use App\Models\Cliente;
 use Spatie\Permission\Models\Role;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Crypt;
@@ -502,10 +501,12 @@ class UserController extends Controller
             $query->select('id', 'tokenable_id', 'tokenable_type', 'name', 'plaintext_token', 'last_used_at', 'created_at', 'abilities');
         }, 'roles'])->where('estado', 'activo')->get();
         
-        // Obtener clientes activos con sus tokens (incluyendo soft deletes)
-        $clientes = Cliente::with(['tokens' => function($query) {
+        // Obtener clientes activos con sus tokens (usuarios con rol Cliente)
+        $clientes = User::with(['tokens' => function($query) {
             $query->select('id', 'tokenable_id', 'tokenable_type', 'name', 'plaintext_token', 'last_used_at', 'created_at', 'abilities');
-        }])->where('estado', 'activo')->whereNull('deleted_at')->get();
+        }, 'roles'])->whereHas('roles', function($query) {
+            $query->where('name', 'Cliente');
+        })->where('estado', 'activo')->get();
         
         // Función para desencriptar tokens
         $desencriptarTokens = function($entidad) {
@@ -577,8 +578,11 @@ class UserController extends Controller
                 $entidad = User::where('estado', 'activo')->findOrFail($request->entidad_id);
                 $entidadNombre = $entidad->name;
             } else {
-                $entidad = Cliente::where('estado', 'activo')->findOrFail($request->entidad_id);
-                $entidadNombre = $entidad->nombre;
+                // Para cliente, también usar User pero con rol Cliente
+                $entidad = User::whereHas('roles', function($query) {
+                    $query->where('name', 'Cliente');
+                })->where('estado', 'activo')->findOrFail($request->entidad_id);
+                $entidadNombre = $entidad->name;
             }
             
             $token = $entidad->createToken($request->token_name);

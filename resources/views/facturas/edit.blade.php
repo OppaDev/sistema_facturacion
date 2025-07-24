@@ -57,7 +57,7 @@
                                     <i class="bi bi-person me-2 text-info"></i>Cliente
                                 </label>
                                 <p class="form-control-plaintext fs-5 fw-semibold">
-                                    {{ $factura->cliente->nombre ?? 'Cliente eliminado' }}
+                                    {{ $factura->cliente->name ?? 'Cliente eliminado' }}
                                 </p>
                             </div>
                             

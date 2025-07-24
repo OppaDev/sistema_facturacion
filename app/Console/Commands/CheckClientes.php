@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Cliente;
+use App\Models\User;
 
 class CheckClientes extends Command
 {
@@ -26,14 +26,16 @@ class CheckClientes extends Command
      */
     public function handle()
     {
-        $clientes = Cliente::all();
+        $clientes = User::whereHas('roles', function($query) {
+            $query->where('name', 'Cliente');
+        })->get();
         
         $this->info('Clientes en BD: ' . $clientes->count());
         $this->info('Emails únicos: ' . $clientes->unique('email')->count());
         
         $this->info('Todos los clientes:');
         foreach ($clientes as $cliente) {
-            $this->line('- ID: ' . $cliente->id . ' | Nombre: ' . $cliente->nombre . ' | Email: ' . ($cliente->email ?: 'SIN EMAIL'));
+            $this->line('- ID: ' . $cliente->id . ' | Nombre: ' . $cliente->name . ' | Email: ' . ($cliente->email ?: 'SIN EMAIL'));
         }
         
         $this->info('Emails únicos:');

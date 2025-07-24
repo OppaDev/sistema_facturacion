@@ -8,7 +8,6 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Models\Role as SpatieRole;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Cliente;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -26,9 +25,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'telefono',
+        'direccion',
         'estado',
         'pending_delete_at',
         'observacion',
+        'motivo_suspension',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -62,11 +66,27 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Relación con el cliente (si tiene rol cliente)
+     * Relación con las facturas donde este usuario es el cliente
      */
-    public function cliente()
+    public function facturasComoCliente()
     {
-        return $this->hasOne(Cliente::class);
+        return $this->hasMany(Factura::class, 'cliente_id');
+    }
+
+    /**
+     * Relación con las facturas creadas por este usuario
+     */
+    public function facturasCreadas()
+    {
+        return $this->hasMany(Factura::class, 'usuario_id');
+    }
+
+    /**
+     * Verificar si el usuario tiene rol de cliente
+     */
+    public function esCliente()
+    {
+        return $this->hasRole('Cliente');
     }
 
     /**

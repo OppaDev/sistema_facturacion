@@ -139,7 +139,7 @@
                     <select name="cliente_id" class="form-select">
                         <option value="">Todos</option>
                         @foreach($clientes as $cliente)
-                  <option value="{{ $cliente->id }}" {{ request('cliente_id') == $cliente->id ? 'selected' : '' }}>{{ $cliente->nombre }}</option>
+                  <option value="{{ $cliente->id }}" {{ request('cliente_id') == $cliente->id ? 'selected' : '' }}>{{ $cliente->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -234,7 +234,7 @@
                             </td>
                             <td>
                                                         <div>
-                      <span class="fw-semibold">{{ $factura->cliente->nombre ?? 'Cliente eliminado' }}</span>
+                      <span class="fw-semibold">{{ $factura->cliente->name ?? 'Cliente eliminado' }}</span>
                       <div class="text-muted small">{{ $factura->cliente->email ?? '' }}</div>
                                 </div>
                             </td>
@@ -552,7 +552,7 @@
         <div class="modal-body">
               <div class="mb-3 p-2 bg-light rounded border">
                 <strong>ID:</strong> #{{ $factura->id }}<br>
-                <strong>Cliente:</strong> {{ $factura->cliente->nombre ?? '-' }}<br>
+                <strong>Cliente:</strong> {{ $factura->cliente->name ?? '-' }}<br>
                 <strong>Total:</strong> ${{ number_format($factura->total, 2) }}<br>
                 <strong>Fecha:</strong> {{ $factura->fecha_emision->format('d/m/Y') }}
               </div>
@@ -608,7 +608,7 @@
               </div>
               <div class="mb-3 p-2 bg-light rounded border">
                 <strong>ID:</strong> #{{ $factura->id }}<br>
-                <strong>Cliente:</strong> {{ $factura->cliente->nombre ?? '-' }}<br>
+                <strong>Cliente:</strong> {{ $factura->cliente->name ?? '-' }}<br>
                 <strong>Total:</strong> ${{ number_format($factura->total, 2) }}<br>
                 <strong>Fecha:</strong> {{ $factura->fecha_emision->format('d/m/Y') }}
               </div>

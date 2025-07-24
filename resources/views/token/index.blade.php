@@ -453,7 +453,7 @@ function actualizarEntidades() {
         clientesData.forEach(cliente => {
             const option = document.createElement('option');
             option.value = cliente.id;
-            option.textContent = `${cliente.nombre} (${cliente.email})`;
+            option.textContent = `${cliente.name} (${cliente.email})`;
             entidadSelect.appendChild(option);
         });
         entidadSelect.disabled = false;

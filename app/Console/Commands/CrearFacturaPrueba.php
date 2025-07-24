@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Factura;
-use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\User;
 use App\Models\FacturaDetalle;
@@ -35,7 +34,10 @@ class CrearFacturaPrueba extends Command
         $this->info("Creando factura de prueba...");
         
         // Obtener o crear cliente de prueba
-        $cliente = Cliente::first();
+        $cliente = User::whereHas('roles', function($query) {
+            $query->where('name', 'Cliente');
+        })->first();
+        
         if (!$cliente) {
             $this->error("No hay clientes en el sistema. Crea al menos un cliente primero.");
             return 1;

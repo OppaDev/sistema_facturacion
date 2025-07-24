@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFacturaRequest;
 use App\Models\Auditoria;
-use App\Models\Cliente;
 use App\Models\Factura;
 use App\Models\FacturaDetalle;
 use App\Models\Producto;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -100,7 +100,9 @@ class FacturasController extends Controller
                             ->withQueryString();
         
         // Obtener clientes para el filtro
-        $clientes = Cliente::orderBy('nombre')->get();
+        $clientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'Cliente');
+        })->where('estado', 'activo')->orderBy('name')->get();
         
         return view('facturas.index', compact('facturas', 'logs', 'usuarios', 'clientes'));
     }
@@ -112,7 +114,9 @@ class FacturasController extends Controller
     {
         $this->authorize('create', Factura::class);
         
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'Cliente');
+        })->where('estado', 'activo')->orderBy('name')->get();
         $productos = Producto::where('stock', '>', 0)->orderBy('nombre')->get();
         
         return view('facturas.create', compact('clientes', 'productos'));
@@ -228,7 +232,9 @@ class FacturasController extends Controller
     {
         $this->authorize('update', $factura);
         
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'Cliente');
+        })->where('estado', 'activo')->orderBy('name')->get();
         $productos = Producto::where('stock', '>', 0)->orderBy('nombre')->get();
         
         return view('facturas.edit', compact('factura', 'clientes', 'productos'));
@@ -426,13 +432,13 @@ class FacturasController extends Controller
     {
         try {
             $request->validate([
-                'cliente_id' => 'required|exists:clientes,id',
+                'cliente_id' => 'required|exists:users,id',
                 'productos' => 'required|array|min:1',
                 'productos.*.producto_id' => 'required|exists:productos,id',
                 'productos.*.cantidad' => 'required|integer|min:1',
             ]);
 
-            $cliente = Cliente::findOrFail($request->cliente_id);
+            $cliente = User::findOrFail($request->cliente_id);
             $productos = [];
             $total = 0;
 

@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Services\EmailService;
 use App\Models\Factura;
-use App\Models\Cliente;
 use App\Models\FacturaDetalle;
 use App\Models\Producto;
 use App\Models\User;

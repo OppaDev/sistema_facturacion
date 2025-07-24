@@ -26,9 +26,12 @@ class StoreFacturaRequest extends FormRequest
             'cliente_id' => [
                 'required',
                 'integer',
-                'exists:clientes,id',
-                Rule::exists('clientes', 'id')->where(function ($query) {
-                    $query->where('estado', 'activo');
+                'exists:users,id',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('estado', 'activo')
+                          ->whereHas('roles', function($q) {
+                              $q->where('name', 'Cliente');
+                          });
                 }),
             ],
             'productos' => [
