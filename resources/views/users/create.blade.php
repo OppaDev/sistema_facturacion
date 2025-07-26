@@ -62,12 +62,12 @@
                     <span class="input-group-text">
                       <i class="bx bx-user"></i>
                     </span>
-                    <input type="text" 
-                           id="name" 
-                           name="name" 
-                           class="form-control @error('name') is-invalid @enderror" 
-                           value="{{ old('name') }}" 
-                           required 
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           class="form-control @error('name') is-invalid @enderror"
+                           value="{{ old('name') }}"
+                           required
                            autofocus
                            placeholder="Ingrese el nombre completo"
                            minlength="2"
@@ -91,11 +91,11 @@
                     <span class="input-group-text">
                       <i class="bx bx-envelope"></i>
                     </span>
-                    <input type="email" 
-                           id="email" 
-                           name="email" 
-                           class="form-control @error('email') is-invalid @enderror" 
-                           value="{{ old('email') }}" 
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           class="form-control @error('email') is-invalid @enderror"
+                           value="{{ old('email') }}"
                            required
                            placeholder="ejemplo@correo.com"
                            data-validation="required|email">
@@ -125,9 +125,9 @@
                     <span class="input-group-text">
                       <i class="bx bx-lock"></i>
                     </span>
-                    <input type="password" 
-                           id="password" 
-                           name="password" 
+                    <input type="password"
+                           id="password"
+                           name="password"
                            class="form-control @error('password') is-invalid @enderror"
                            required
                            minlength="8"
@@ -162,9 +162,9 @@
                     <span class="input-group-text">
                       <i class="bx bx-lock-alt"></i>
                     </span>
-                    <input type="password" 
-                           id="password_confirmation" 
-                           name="password_confirmation" 
+                    <input type="password"
+                           id="password_confirmation"
+                           name="password_confirmation"
                            class="form-control"
                            required
                            placeholder="Repita la contraseña"
@@ -198,9 +198,9 @@
                     <span class="input-group-text">
                       <i class="bx bx-toggle-left"></i>
                     </span>
-                    <select id="estado" 
-                            name="estado" 
-                            class="form-select @error('estado') is-invalid @enderror" 
+                    <select id="estado"
+                            name="estado"
+                            class="form-select @error('estado') is-invalid @enderror"
                             required
                             data-validation="required">
                       <option value="">Seleccione un estado</option>
@@ -228,14 +228,14 @@
                     <span class="input-group-text">
                       <i class="bx bx-shield"></i>
                     </span>
-                    <select id="roles" 
-                            name="roles[]" 
-                            class="form-select @error('roles') is-invalid @enderror" 
+                    <select id="roles"
+                            name="roles[]"
+                            class="form-select @error('roles') is-invalid @enderror"
                             required
                             data-validation="required">
                       <option value="">Seleccione un rol</option>
                       @foreach($roles as $role)
-                        <option value="{{ $role->name }}" 
+                        <option value="{{ $role->name }}"
                                 {{ in_array($role->name, old('roles', [])) ? 'selected' : '' }}
                                 data-description="{{ $role->description ?? 'Sin descripción' }}">
                           {{ $role->name }}
@@ -295,8 +295,7 @@
                   <input class="form-check-input" type="checkbox" id="terms" required>
                   <label class="form-check-label" for="terms">
                     <small>
-                      Acepto que el usuario creado tendrá acceso al sistema según los permisos asignados y 
-                      que soy responsable de la información proporcionada. 
+                      Acepto que el usuario creado tendrá acceso al sistema según los permisos asignados y que soy responsable de la información proporcionada.
                       <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#termsModal">
                         Ver términos completos
                       </a>

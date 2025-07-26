@@ -465,29 +465,78 @@ function actualizarEntidades() {
 
 // Función para copiar al portapapeles
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Mostrar mensaje de confirmación
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-info alert-dismissible fade show position-fixed';
-        alert.style.top = '20px';
-        alert.style.right = '20px';
-        alert.style.zIndex = '9999';
-        alert.innerHTML = `
-            <i class="bx bx-check me-2"></i>
-            Token copiado al portapapeles
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(alert);
-        
-        // Remover después de 3 segundos
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.parentNode.removeChild(alert);
-            }
-        }, 3000);
-    }).catch(function(err) {
-        console.error('Error al copiar: ', err);
-    });
+    // Intentar con la API moderna (solo funciona en contextos seguros)
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function() {
+            mostrarMensajeCopia();
+        }).catch(function(err) {
+            console.error('Error copiando con API moderna:', err);
+            fallbackCopyTextToClipboard(text);
+        });
+    } else {
+        // Método de respaldo para contextos no seguros (HTTP)
+        fallbackCopyTextToClipboard(text);
+    }
+}
+
+// Método de respaldo para copiar al portapapeles
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.width = "2em";
+    textArea.style.height = "2em";
+    textArea.style.padding = "0";
+    textArea.style.border = "none";
+    textArea.style.outline = "none";
+    textArea.style.boxShadow = "none";
+    textArea.style.background = "transparent";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    textArea.setSelectionRange(0, 99999); // Para móviles
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            mostrarMensajeCopia();
+        } else {
+            console.error('Error al copiar con método de respaldo');
+            alert('No se pudo copiar el token');
+        }
+    } catch (err) {
+        console.error('Error al copiar:', err);
+        alert('Error al copiar el token');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Función para mostrar mensaje de confirmación
+function mostrarMensajeCopia() {
+    // Mostrar mensaje de confirmación
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-info alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        <i class="bx bx-check me-2"></i>
+        Token copiado al portapapeles
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 3000);
 }
 
 // Configurar modal para eliminar token

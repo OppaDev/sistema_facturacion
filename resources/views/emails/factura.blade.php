@@ -75,7 +75,7 @@
             </p>
         </div>
         
-        @if($mensaje)
+        @if(isset($mensaje) && !empty($mensaje))
             <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0;">
                 <h3>Mensaje:</h3>
                 <p>{{ $mensaje }}</p>

@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreFacturaRequest extends FormRequest
 {
@@ -27,12 +26,18 @@ class StoreFacturaRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:users,id',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    $query->where('estado', 'activo')
-                          ->whereHas('roles', function($q) {
-                              $q->where('name', 'Cliente');
-                          });
-                }),
+                function ($attribute, $value, $fail) {
+                    $user = \App\Models\User::where('id', $value)
+                        ->where('estado', 'activo')
+                        ->whereHas('roles', function($q) {
+                            $q->where('name', 'Cliente');
+                        })
+                        ->first();
+                    
+                    if (!$user) {
+                        $fail('El cliente seleccionado no existe, no está activo o no tiene rol de cliente.');
+                    }
+                },
             ],
             'productos' => [
                 'required',
@@ -43,9 +48,15 @@ class StoreFacturaRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:productos,id',
-                Rule::exists('productos', 'id')->where(function ($query) {
-                    $query->where('stock', '>', 0);
-                }),
+                function ($attribute, $value, $fail) {
+                    $producto = \App\Models\Producto::where('id', $value)
+                        ->where('stock', '>', 0)
+                        ->first();
+                    
+                    if (!$producto) {
+                        $fail('El producto seleccionado no existe o no tiene stock disponible.');
+                    }
+                },
             ],
             'productos.*.cantidad' => [
                 'required',

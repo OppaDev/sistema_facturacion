@@ -504,13 +504,13 @@ class FacturasController extends Controller
             ]);
             \Log::info('Validación pasada');
             
-            \Log::info('Iniciando envío de factura por email (API SendGrid)', [
+            \Log::info('Iniciando envío de factura por email (HTTP API Maileroo)', [
                 'factura_id' => $factura->id,
                 'email_destino' => $request->email,
                 'usuario' => auth()->user()->name,
             ]);
             
-            // Usar el servicio EmailService (API SendGrid directa)
+            // Usar el servicio EmailService (HTTP API Maileroo)
             $emailService = new \App\Services\EmailService();
             $resultado = $emailService->enviarFactura(
                 $factura,
@@ -520,11 +520,11 @@ class FacturasController extends Controller
             );
             
             if ($resultado) {
-                \Log::info('Email enviado exitosamente (API SendGrid)');
+                \Log::info('Email enviado exitosamente (HTTP API Maileroo)');
                 return redirect()->route('facturas.show', $factura)
                                ->with('success', 'Factura enviada exitosamente a ' . $request->email);
             } else {
-                \Log::error('Error al enviar email (API SendGrid)');
+                \Log::error('Error al enviar email (HTTP API Maileroo)');
                 return redirect()->back()->with('error', 'Error al enviar la factura por email. Revisa los logs para más detalles.');
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -537,7 +537,7 @@ class FacturasController extends Controller
             \Log::error('Factura no encontrada al enviar email: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Factura no encontrada.');
         } catch (\Exception $e) {
-            \Log::error('Error al enviar factura por email (API SendGrid): ' . $e->getMessage());
+            \Log::error('Error al enviar factura por email (HTTP API Maileroo): ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Error al enviar la factura por email: ' . $e->getMessage());
         }

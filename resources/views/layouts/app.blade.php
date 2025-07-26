@@ -103,7 +103,7 @@
               </a>
             </li>
 
-            <!-- Usuarios/Clientes -->
+            {{-- <!-- Usuarios/Clientes -->
             @role('Administrador|Secretario')
             <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
               <a href="{{ route('users.index') }}" class="menu-link">
@@ -111,7 +111,7 @@
                 <div class="text-truncate" data-i18n="Usuarios">Usuarios/Clientes</div>
               </a>
             </li>
-            @endrole
+            @endrole --}}
 
             <!-- Productos -->
             @role('Administrador|Bodega')
@@ -144,7 +144,7 @@
             @endrole
 
             <!-- Usuarios -->
-            @role('Administrador')
+            @role('Administrador|Secretario')
             <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
               <a href="{{ route('users.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-group"></i>

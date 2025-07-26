@@ -132,7 +132,7 @@ class UserController extends Controller
             'password_confirmation.required' => 'Debe confirmar la contraseña.',
             'estado.required' => 'El estado es obligatorio.',
             'estado.in' => 'El estado debe ser activo o inactivo.',
-            'roles.required' => 'Debe seleccionar al menos un rol.',
+            'roles.required' => 'Un rol es obligatorio.',
             'roles.array' => 'Los roles deben ser una lista.',
             'roles.min' => 'Debe seleccionar al menos un rol.',
             'roles.max' => 'No puede asignar más de 3 roles.',
