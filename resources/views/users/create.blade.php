@@ -292,7 +292,7 @@
             <div class="row mb-4">
               <div class="col-12">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="terms" required>
+                  <input class="form-check-input" type="checkbox" id="terms">
                   <label class="form-check-label" for="terms">
                     <small>
                       Acepto que el usuario creado tendrá acceso al sistema según los permisos asignados y que soy responsable de la información proporcionada.
@@ -301,7 +301,7 @@
                       </a>
                     </small>
                   </label>
-                  <div class="invalid-feedback">
+                  <div class="invalid-feedback" style="display: none;">
                     Debe aceptar los términos y condiciones
                   </div>
                 </div>
@@ -376,13 +376,317 @@
 <script>
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-  // Eliminar notificaciones visuales y alertas de sesión y errores
-  // Mostrar errores de validación
-  @if($errors->any())
-    @foreach($errors->all() as $error)
-      // Eliminar el código de notificación visual
-    @endforeach
-  @endif
+    const form = document.getElementById('createUserForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetForm');
+    const termsCheckbox = document.getElementById('terms');
+    
+    // Elementos de campos
+    const nameField = document.getElementById('name');
+    const emailField = document.getElementById('email');
+    const passwordField = document.getElementById('password');
+    const passwordConfirmField = document.getElementById('password_confirmation');
+    const estadoField = document.getElementById('estado');
+    const rolesField = document.getElementById('roles');
+    
+    // Elementos de error
+    const nameError = document.getElementById('name-error');
+    const emailError = document.getElementById('email-error');
+    const passwordError = document.getElementById('password-error');
+    const passwordConfirmError = document.getElementById('password_confirmation-error');
+    const estadoError = document.getElementById('estado-error');
+    const rolesError = document.getElementById('roles-error');
+    
+    // Toggle para mostrar/ocultar contraseñas
+    document.getElementById('togglePassword')?.addEventListener('click', function() {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('bx-show');
+        this.querySelector('i').classList.toggle('bx-hide');
+    });
+    
+    document.getElementById('togglePasswordConfirmation')?.addEventListener('click', function() {
+        const type = passwordConfirmField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordConfirmField.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('bx-show');
+        this.querySelector('i').classList.toggle('bx-hide');
+    });
+    
+    // Indicador de fortaleza de contraseña
+    passwordField?.addEventListener('input', function() {
+        const password = this.value;
+        const strength = calculatePasswordStrength(password);
+        const progressBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('passwordStrengthText');
+        
+        progressBar.style.width = strength.percentage + '%';
+        progressBar.className = 'progress-bar ' + strength.class;
+        strengthText.textContent = strength.text;
+    });
+    
+    function calculatePasswordStrength(password) {
+        let score = 0;
+        
+        if (password.length >= 8) score += 25;
+        if (password.match(/[a-z]/)) score += 25;
+        if (password.match(/[A-Z]/)) score += 25;
+        if (password.match(/[0-9]/)) score += 25;
+        
+        if (score <= 25) return { percentage: score, class: 'bg-danger', text: 'Muy débil' };
+        if (score <= 50) return { percentage: score, class: 'bg-warning', text: 'Débil' };
+        if (score <= 75) return { percentage: score, class: 'bg-info', text: 'Moderada' };
+        return { percentage: score, class: 'bg-success', text: 'Fuerte' };
+    }
+    
+    // Funciones de validación
+    function validateField(field, errorElement, rules) {
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Validación required
+        if (rules.includes('required') && !value) {
+            isValid = false;
+            errorMessage = 'Este campo es obligatorio';
+        }
+        
+        // Validación min length
+        const minMatch = rules.match(/min:(\d+)/);
+        if (minMatch && value.length < parseInt(minMatch[1])) {
+            isValid = false;
+            errorMessage = `Mínimo ${minMatch[1]} caracteres`;
+        }
+        
+        // Validación max length
+        const maxMatch = rules.match(/max:(\d+)/);
+        if (maxMatch && value.length > parseInt(maxMatch[1])) {
+            isValid = false;
+            errorMessage = `Máximo ${maxMatch[1]} caracteres`;
+        }
+        
+        // Validación email
+        if (rules.includes('email') && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Formato de email inválido';
+            }
+        }
+        
+        // Validación pattern para nombres
+        if (rules.includes('pattern') && value) {
+            const nameRegex = /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/;
+            if (!nameRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Solo se permiten letras y espacios';
+            }
+        }
+        
+        // Aplicar estilos de validación
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+            if (errorElement) {
+                errorElement.textContent = errorMessage;
+            }
+        }
+        
+        return isValid;
+    }
+    
+    function validatePasswordMatch() {
+        const password = passwordField.value;
+        const passwordConfirm = passwordConfirmField.value;
+        const isValid = password === passwordConfirm;
+        
+        if (passwordConfirm) {
+            if (isValid) {
+                passwordConfirmField.classList.remove('is-invalid');
+                passwordConfirmField.classList.add('is-valid');
+                passwordConfirmError.textContent = '';
+            } else {
+                passwordConfirmField.classList.remove('is-valid');
+                passwordConfirmField.classList.add('is-invalid');
+                passwordConfirmError.textContent = 'Las contraseñas no coinciden';
+            }
+        }
+        
+        return isValid;
+    }
+    
+    function validatePasswordComplexity() {
+        const password = passwordField.value;
+        const complexityRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+        const isValid = password.length >= 8 && complexityRegex.test(password);
+        
+        if (password) {
+            if (isValid) {
+                passwordField.classList.remove('is-invalid');
+                passwordField.classList.add('is-valid');
+                passwordError.textContent = '';
+            } else {
+                passwordField.classList.remove('is-valid');
+                passwordField.classList.add('is-invalid');
+                passwordError.textContent = 'Debe contener mayúscula, minúscula y número. Mínimo 8 caracteres.';
+            }
+        }
+        
+        return isValid;
+    }
+    
+    function validateTerms() {
+        const isChecked = termsCheckbox.checked;
+        const termsError = termsCheckbox.parentElement.querySelector('.invalid-feedback');
+        
+        if (isChecked) {
+            termsCheckbox.classList.remove('is-invalid');
+            termsCheckbox.classList.add('is-valid');
+            if (termsError) {
+                termsError.style.display = 'none';
+            }
+        } else {
+            termsCheckbox.classList.remove('is-valid');
+            termsCheckbox.classList.add('is-invalid');
+            if (termsError) {
+                termsError.style.display = 'block';
+            }
+        }
+        
+        return isChecked;
+    }
+    
+    // Event listeners para validación en tiempo real
+    nameField?.addEventListener('blur', function() {
+        validateField(this, nameError, 'required|min:2|max:255|pattern');
+    });
+    
+    emailField?.addEventListener('blur', function() {
+        validateField(this, emailError, 'required|email|max:255');
+    });
+    
+    passwordField?.addEventListener('blur', function() {
+        validatePasswordComplexity();
+        if (passwordConfirmField.value) {
+            validatePasswordMatch();
+        }
+    });
+    
+    passwordConfirmField?.addEventListener('blur', function() {
+        validatePasswordMatch();
+    });
+    
+    estadoField?.addEventListener('change', function() {
+        validateField(this, estadoError, 'required');
+    });
+    
+    rolesField?.addEventListener('change', function() {
+        validateField(this, rolesError, 'required');
+    });
+    
+    termsCheckbox?.addEventListener('change', function() {
+        validateTerms();
+    });
+    
+    // Validación completa del formulario
+    function validateForm() {
+        let isFormValid = true;
+        
+        // Validar todos los campos
+        if (!validateField(nameField, nameError, 'required|min:2|max:255|pattern')) {
+            isFormValid = false;
+        }
+        
+        if (!validateField(emailField, emailError, 'required|email|max:255')) {
+            isFormValid = false;
+        }
+        
+        if (!validatePasswordComplexity()) {
+            isFormValid = false;
+        }
+        
+        if (!validatePasswordMatch()) {
+            isFormValid = false;
+        }
+        
+        if (!validateField(estadoField, estadoError, 'required')) {
+            isFormValid = false;
+        }
+        
+        if (!validateField(rolesField, rolesError, 'required')) {
+            isFormValid = false;
+        }
+        
+        if (!validateTerms()) {
+            isFormValid = false;
+        }
+        
+        return isFormValid;
+    }
+    
+    // Event listener para el envío del formulario
+    form?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (validateForm()) {
+            // Deshabilitar botón de envío para evitar doble envío
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Creando...';
+            
+            // Enviar formulario
+            this.submit();
+        } else {
+            // Scroll al primer campo con error
+            const firstInvalidField = form.querySelector('.is-invalid');
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidField.focus();
+            }
+        }
+    });
+    
+    // Reset form
+    resetBtn?.addEventListener('click', function() {
+        // Remover clases de validación
+        form.querySelectorAll('.is-valid, .is-invalid').forEach(field => {
+            field.classList.remove('is-valid', 'is-invalid');
+        });
+        
+        // Limpiar mensajes de error
+        form.querySelectorAll('.invalid-feedback').forEach(error => {
+            error.textContent = '';
+            error.style.display = 'none';
+        });
+        
+        // Reset password strength
+        const progressBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('passwordStrengthText');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            progressBar.className = 'progress-bar';
+        }
+        if (strengthText) {
+            strengthText.textContent = 'Fortaleza de la contraseña';
+        }
+        
+        // Reset checkbox terms
+        if (termsCheckbox) {
+            termsCheckbox.checked = false;
+            validateTerms();
+        }
+    });
+    
+    // Mostrar errores de validación del servidor
+    @if($errors->any())
+        @foreach($errors->all() as $error)
+            console.log('Error de validación del servidor: {{ $error }}');
+        @endforeach
+    @endif
 });
 </script>
 @endpush
