@@ -134,15 +134,6 @@ class DashboardController extends Controller
             return view('dashboard_secretario', compact('usuariosActivos', 'clientesActivos'));
         }
 
-        // SECRETARIO
-        if ($user->hasRole('Secretario')) {
-            $usuariosActivos = User::where('estado', 'activo')->count();
-            $clientesActivos = User::whereHas('roles', function($q) {
-                $q->where('name', 'Cliente');
-            })->where('estado', 'activo')->count();
-            return view('dashboard_secretario', compact('usuariosActivos', 'clientesActivos'));
-        }
-
         // BODEGA
         if ($user->hasRole('Bodega')) {
             $totalProductos = \App\Models\Producto::sum('stock');
