@@ -36,7 +36,7 @@ class EmailService
     /**
      * Enviar email general usando Maileroo
      */
-    public function sendEmail(string $to, string $subject, string $textContent, string $htmlContent = null): bool
+    public function sendEmail(string $to, string $subject, string $textContent, ?string $htmlContent = null): bool
     {
         try {
             $result = $this->mailerooService->sendEmail($to, $subject, $textContent, $htmlContent);
@@ -52,7 +52,7 @@ class EmailService
     }
 
     /**
-     * Verificar configuración de email
+     * Verificar configuracion de email
      */
     public function verificarConfiguracion(): array
     {

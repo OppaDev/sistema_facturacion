@@ -10,17 +10,17 @@ use Illuminate\Support\Facades\Log;
 class TestEmailDetallado extends Command
 {
     protected $signature = 'test:email-detallado {email}';
-    protected $description = 'Probar envío de email con diagnóstico detallado';
+    protected $description = 'Probar envio de email con diagnostico detallado';
 
     public function handle()
     {
         $email = $this->argument('email');
         
-        $this->info("🔍 Iniciando diagnóstico de email...");
+        $this->info("🔍 Iniciando diagnostico de email...");
         $this->info("📧 Email destino: {$email}");
         
-        // 1. Verificar configuración
-        $this->info("\n📋 Verificando configuración...");
+        // 1. Verificar configuracion
+        $this->info("\n📋 Verificando configuracion...");
         $emailService = new EmailService();
         $config = $emailService->verificarConfiguracion();
         
@@ -97,21 +97,21 @@ class TestEmailDetallado extends Command
         // 6. Probar generación de HTML
         $this->info("\n📧 Probando generación de HTML...");
         try {
-            $mensaje = "Esta es una prueba de envío de factura.";
+            $mensaje = "Esta es una prueba de envio de factura.";
             $html = view('emails.factura', compact('factura', 'mensaje'))->render();
             $this->info("✅ HTML generado correctamente (" . strlen($html) . " bytes)");
         } catch (\Exception $e) {
             $this->error("❌ Error generando HTML: " . $e->getMessage());
         }
         
-        // 7. Probar envío real
-        $this->info("\n🚀 Probando envío real...");
+        // 7. Probar envio real
+        $this->info("\n🚀 Probando envio real...");
         try {
             $resultado = $emailService->enviarFactura(
                 $factura,
                 $email,
                 "Prueba de Factura - " . now()->format('d/m/Y H:i:s'),
-                "Esta es una prueba de envío de factura desde el sistema."
+                "Esta es una prueba de envio de factura desde el sistema."
             );
             
             if ($resultado) {
@@ -144,7 +144,7 @@ class TestEmailDetallado extends Command
             $this->info("  Error leyendo logs: " . $e->getMessage());
         }
         
-        $this->info("\n🎯 Diagnóstico completado");
+        $this->info("\n🎯 Diagnostico completado");
         $this->info("💡 Si no recibes el email, verifica:");
         $this->info("  1. Tu carpeta de spam");
         $this->info("  2. Que el email esté correcto");

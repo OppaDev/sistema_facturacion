@@ -19,7 +19,7 @@ class TestResend extends Command
      *
      * @var string
      */
-    protected $description = 'Probar envío de email con Resend';
+    protected $description = 'Probar envio de email con Resend';
 
     /**
      * Execute the console command.

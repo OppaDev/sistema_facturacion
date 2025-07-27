@@ -20,7 +20,7 @@ class TestEmailConfig extends Command
      *
      * @var string
      */
-    protected $description = 'Probar configuración de email con SendGrid API';
+    protected $description = 'Probar configuracion de email con SendGrid API';
 
     /**
      * Execute the console command.
@@ -29,14 +29,14 @@ class TestEmailConfig extends Command
     {
         $email = $this->argument('email');
 
-        $this->info("🔍 Probando configuración de email para: {$email}");
+        $this->info("🔍 Probando configuracion de email para: {$email}");
 
         try {
-            // Verificar configuración
+            // Verificar configuracion
             $emailService = new EmailService();
             $config = $emailService->verificarConfiguracion();
             
-            $this->info("📋 Configuración actual:");
+            $this->info("📋 Configuracion actual:");
             foreach ($config as $key => $value) {
                 $this->line("  {$key}: {$value}");
             }
@@ -69,8 +69,8 @@ class TestEmailConfig extends Command
             $resultado = $emailService->enviarFactura(
                 $factura,
                 $email,
-                "Prueba de Configuración - " . now()->format('d/m/Y H:i:s'),
-                "Esta es una prueba de configuración usando SendGrid API.\n\nSi recibes este email, la configuración está funcionando correctamente."
+                "Prueba de Configuracion - " . now()->format('d/m/Y H:i:s'),
+                "Esta es una prueba de configuracion usando SendGrid API.\n\nSi recibes este email, la configuracion esta funcionando correctamente."
             );
             
             if ($resultado) {

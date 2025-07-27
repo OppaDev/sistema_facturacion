@@ -23,7 +23,7 @@ class TestEmail extends Command
      *
      * @var string
      */
-    protected $description = 'Probar envío de email de factura';
+    protected $description = 'Probar envio de email de factura';
 
     /**
      * Execute the console command.
@@ -33,7 +33,7 @@ class TestEmail extends Command
         $facturaId = $this->argument('factura_id');
         $email = $this->argument('email');
 
-        $this->info("Probando envío de email para factura #{$facturaId} a {$email}");
+        $this->info("Probando envio de email para factura #{$facturaId} a {$email}");
 
         try {
             // Buscar la factura
@@ -64,7 +64,7 @@ class TestEmail extends Command
 
             // Enviar email
             $asunto = 'Prueba - Factura #' . $factura->getNumeroFormateado() . ' - SowarTech';
-            $mensaje = "Esta es una prueba del sistema de envío de facturas.\n\nFactura #{$factura->getNumeroFormateado()} por $" . number_format((float) $factura->total, 2) . ".\n\nSaludos cordiales,\nEquipo de SowarTech";
+            $mensaje = "Esta es una prueba del sistema de envio de facturas.\n\nFactura #{$factura->getNumeroFormateado()} por $" . number_format((float) $factura->total, 2) . ".\n\nSaludos cordiales,\nEquipo de SowarTech";
 
             $this->info("Enviando email...");
             
