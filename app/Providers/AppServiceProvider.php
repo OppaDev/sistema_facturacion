@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
                 \App\Console\Commands\Testing\TestResend::class,
             ]);
         }
+
+        if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 
     /**
@@ -34,4 +39,4 @@ class AppServiceProvider extends ServiceProvider
     {
         User::observe(UserObserver::class);
     }
-} 
+}
