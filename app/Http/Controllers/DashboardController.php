@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\Factura;
 use App\Models\Categoria;
@@ -23,7 +22,9 @@ class DashboardController extends Controller
         // ADMINISTRADOR: dashboard original
         if ($user->hasRole('Administrador')) {
             // --- Lógica original ---
-            $clientesActivos = \App\Models\Cliente::where('estado', 'activo')->count();
+            $clientesActivos = User::whereHas('roles', function($q) {
+                $q->where('name', 'Cliente');
+            })->where('estado', 'activo')->count();
             $totalProductos = \App\Models\Producto::sum('stock');
             $facturasMes = \App\Models\Factura::whereMonth('created_at', now()->month)
                                   ->whereYear('created_at', now()->year)
@@ -87,7 +88,9 @@ class DashboardController extends Controller
                     'salidas' => $salidas,
                 ];
             }
-            $ultimosClientes = \App\Models\Cliente::orderBy('created_at', 'desc')->limit(5)->get();
+            $ultimosClientes = User::whereHas('roles', function($q) {
+                $q->where('name', 'Cliente');
+            })->orderBy('created_at', 'desc')->limit(5)->get();
             $logsAuditoria = \App\Models\Auditoria::with('user')->orderBy('created_at', 'desc')->limit(5)->get();
             return view('dashboard', compact('usuarios',
                 'clientesActivos',
@@ -112,28 +115,22 @@ class DashboardController extends Controller
             ));
         }
 
-        // CLIENTE
-        if ($user->hasRole('cliente')) {
-            $cliente = $user->cliente;
-            
-            $comprasCliente = 0;
-            $facturasCliente = 0;
-            $totalGastado = 0;
-            
-            if ($cliente instanceof \App\Models\Cliente) {
-                // Usamos query builder directamente para evitar problemas de detección
-                $comprasCliente = \App\Models\Factura::where('cliente_id', $cliente->id)->count();
-                $facturasCliente = \App\Models\Factura::where('cliente_id', $cliente->id)->count();
-                $totalGastado = \App\Models\Factura::where('cliente_id', $cliente->id)->sum('total');
-            }
+                // CLIENTE: dashboard específico
+        if ($user->hasRole('Cliente')) {
+            // Ahora el usuario ES el cliente directamente
+            $comprasCliente = Factura::where('cliente_id', $user->id)->count();
+            $facturasCliente = Factura::where('cliente_id', $user->id)->count();
+            $totalGastado = Factura::where('cliente_id', $user->id)->sum('total');
             
             return view('dashboard_cliente', compact('comprasCliente', 'facturasCliente', 'totalGastado'));
         }
 
         // SECRETARIO
         if ($user->hasRole('Secretario')) {
-            $usuariosActivos = \App\Models\User::where('estado', 'activo')->count();
-            $clientesActivos = \App\Models\Cliente::where('estado', 'activo')->count();
+            $usuariosActivos = User::where('estado', 'activo')->count();
+            $clientesActivos = User::whereHas('roles', function($q) {
+                $q->where('name', 'Cliente');
+            })->where('estado', 'activo')->count();
             return view('dashboard_secretario', compact('usuariosActivos', 'clientesActivos'));
         }
 

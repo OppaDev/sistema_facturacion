@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFacturaRequest;
 use App\Models\Auditoria;
-use App\Models\Cliente;
 use App\Models\Factura;
 use App\Models\FacturaDetalle;
 use App\Models\Producto;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -100,7 +100,9 @@ class FacturasController extends Controller
                             ->withQueryString();
         
         // Obtener clientes para el filtro
-        $clientes = Cliente::orderBy('nombre')->get();
+        $clientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'Cliente');
+        })->where('estado', 'activo')->orderBy('name')->get();
         
         return view('facturas.index', compact('facturas', 'logs', 'usuarios', 'clientes'));
     }
@@ -112,7 +114,9 @@ class FacturasController extends Controller
     {
         $this->authorize('create', Factura::class);
         
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'Cliente');
+        })->where('estado', 'activo')->orderBy('name')->get();
         $productos = Producto::where('stock', '>', 0)->orderBy('nombre')->get();
         
         return view('facturas.create', compact('clientes', 'productos'));
@@ -228,7 +232,9 @@ class FacturasController extends Controller
     {
         $this->authorize('update', $factura);
         
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'Cliente');
+        })->where('estado', 'activo')->orderBy('name')->get();
         $productos = Producto::where('stock', '>', 0)->orderBy('nombre')->get();
         
         return view('facturas.edit', compact('factura', 'clientes', 'productos'));
@@ -426,13 +432,13 @@ class FacturasController extends Controller
     {
         try {
             $request->validate([
-                'cliente_id' => 'required|exists:clientes,id',
+                'cliente_id' => 'required|exists:users,id',
                 'productos' => 'required|array|min:1',
                 'productos.*.producto_id' => 'required|exists:productos,id',
                 'productos.*.cantidad' => 'required|integer|min:1',
             ]);
 
-            $cliente = Cliente::findOrFail($request->cliente_id);
+            $cliente = User::findOrFail($request->cliente_id);
             $productos = [];
             $total = 0;
 
@@ -498,13 +504,13 @@ class FacturasController extends Controller
             ]);
             \Log::info('Validación pasada');
             
-            \Log::info('Iniciando envío de factura por email (API SendGrid)', [
+            \Log::info('Iniciando envío de factura por email (HTTP API Maileroo)', [
                 'factura_id' => $factura->id,
                 'email_destino' => $request->email,
                 'usuario' => auth()->user()->name,
             ]);
             
-            // Usar el servicio EmailService (API SendGrid directa)
+            // Usar el servicio EmailService (HTTP API Maileroo)
             $emailService = new \App\Services\EmailService();
             $resultado = $emailService->enviarFactura(
                 $factura,
@@ -514,11 +520,11 @@ class FacturasController extends Controller
             );
             
             if ($resultado) {
-                \Log::info('Email enviado exitosamente (API SendGrid)');
+                \Log::info('Email enviado exitosamente (HTTP API Maileroo)');
                 return redirect()->route('facturas.show', $factura)
                                ->with('success', 'Factura enviada exitosamente a ' . $request->email);
             } else {
-                \Log::error('Error al enviar email (API SendGrid)');
+                \Log::error('Error al enviar email (HTTP API Maileroo)');
                 return redirect()->back()->with('error', 'Error al enviar la factura por email. Revisa los logs para más detalles.');
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -531,7 +537,7 @@ class FacturasController extends Controller
             \Log::error('Factura no encontrada al enviar email: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Factura no encontrada.');
         } catch (\Exception $e) {
-            \Log::error('Error al enviar factura por email (API SendGrid): ' . $e->getMessage());
+            \Log::error('Error al enviar factura por email (HTTP API Maileroo): ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Error al enviar la factura por email: ' . $e->getMessage());
         }

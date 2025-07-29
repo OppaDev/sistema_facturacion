@@ -266,7 +266,7 @@
     <div class="row">
         <div class="col card">
             <div class="card-title">Cliente</div>
-            <div class="info-row"><span class="info-label">Nombre:</span> {{ $factura->cliente->nombre ?? 'Cliente eliminado' }}</div>
+            <div class="info-row"><span class="info-label">Nombre:</span> {{ $factura->cliente->name ?? 'Cliente eliminado' }}</div>
             @if($factura->cliente)
             <div class="info-row"><span class="info-label">Email:</span> {{ $factura->cliente->email ?? 'No especificado' }}</div>
             <div class="info-row"><span class="info-label">Teléfono:</span> {{ $factura->cliente->telefono ?? 'No especificado' }}</div>

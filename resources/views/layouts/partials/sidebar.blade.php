@@ -25,12 +25,12 @@
             </a>
         </li>
 
-        <!-- Clientes: solo Administrador y Secretario -->
+        <!-- Usuarios/Clientes: solo Administrador y Secretario -->
         @hasanyrole('Administrador|Secretario')
         <li class="nav-item">
-            <a href="{{ route('clientes.index') }}" class="nav-link {{ request()->is('clientes*') ? 'active' : '' }}">
+            <a href="{{ route('users.index') }}" class="nav-link {{ request()->is('users*') ? 'active' : '' }}">
                 <i class="nav-icon bi bi-people"></i>
-                <p>Clientes</p>
+                <p>Usuarios/Clientes</p>
             </a>
         </li>
         @endhasanyrole

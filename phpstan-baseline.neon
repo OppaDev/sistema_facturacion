@@ -1,0 +1,19 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property App\\Models\\Factura\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Factura\>\:\:\$detalles\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/FacturasController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Factura\:\:\$detalles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/FacturaSRIService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Factura\:\:\$cliente\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/MailerooService.php

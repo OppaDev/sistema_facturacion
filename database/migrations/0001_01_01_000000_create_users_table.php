@@ -17,11 +17,21 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('telefono')->nullable();
+            $table->text('direccion')->nullable();
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->timestamp('pending_delete_at')->nullable();
+            $table->text('observacion')->nullable();
+            $table->string('motivo_suspension')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+            
+            // Foreign keys
+            $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
+            $table->foreign('updated_by')->references('id')->on('users')->nullOnDelete();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
-use App\Models\Cliente;
 use Spatie\Permission\Models\Role;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Crypt;
@@ -70,88 +69,175 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = Role::all();
-        return view('users.create', compact('roles'));
+        // Log estratégico: Acceso a formulario de creación
+        Log::info('CREACION_USUARIO: Accediendo al formulario de creación', [
+            'usuario_autenticado' => Auth::id(),
+            'usuario_roles' => Auth::user()->roles->pluck('name')->toArray(),
+            'timestamp' => now()->toDateTimeString()
+        ]);
+
+        try {
+            $roles = Role::all();
+            
+            // Log estratégico: Roles disponibles
+            Log::info('CREACION_USUARIO: Cargando roles disponibles', [
+                'total_roles' => $roles->count(),
+                'roles' => $roles->pluck('name')->toArray(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return view('users.create', compact('roles'));
+            
+        } catch (\Exception $e) {
+            Log::error('CREACION_USUARIO: Error al cargar formulario de creación', [
+                'error' => $e->getMessage(),
+                'archivo' => $e->getFile(),
+                'linea' => $e->getLine(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return redirect()->route('users.index')
+                ->with('error', 'Error al cargar el formulario de creación.');
+        }
     }
 
     public function store(Request $request)
     {
-        // Validación avanzada con reglas personalizadas
-        $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                'min:2',
-                'regex:/^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/'
-            ],
-            'email' => [
-                'required',
-                'email',
-                'unique:users,email',
-                'max:255'
-            ],
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
-            ],
-            'password_confirmation' => [
-                'required',
-                'string'
-            ],
-            'estado' => [
-                'required',
-                'in:activo,inactivo'
-            ],
-            'roles' => [
-                'required',
-                'array',
-                'min:1',
-                'max:3'
-            ],
-            'roles.*' => [
-                'exists:roles,name',
-                'string'
-            ],
-        ], [
-            'name.required' => 'El nombre es obligatorio.',
-            'name.string' => 'El nombre debe ser texto.',
-            'name.max' => 'El nombre no puede tener más de 255 caracteres.',
-            'name.min' => 'El nombre debe tener al menos 2 caracteres.',
-            'name.regex' => 'El nombre solo puede contener letras y espacios.',
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.email' => 'El formato del correo electrónico no es válido.',
-            'email.unique' => 'Este correo electrónico ya está registrado.',
-            'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
-            'password.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
-            'password_confirmation.required' => 'Debe confirmar la contraseña.',
-            'estado.required' => 'El estado es obligatorio.',
-            'estado.in' => 'El estado debe ser activo o inactivo.',
-            'roles.required' => 'Debe seleccionar al menos un rol.',
-            'roles.array' => 'Los roles deben ser una lista.',
-            'roles.min' => 'Debe seleccionar al menos un rol.',
-            'roles.max' => 'No puede asignar más de 3 roles.',
-            'roles.*.exists' => 'Uno de los roles seleccionados no existe.',
-            'roles.*.string' => 'Los roles deben ser texto.',
+        // Log estratégico: Inicio del proceso de creación
+        Log::info('CREACION_USUARIO: Iniciando proceso de creación de usuario', [
+            'usuario_autenticado' => Auth::id(),
+            'datos_recibidos' => $request->except(['password', 'password_confirmation']),
+            'timestamp' => now()->toDateTimeString()
         ]);
 
+        // Validación avanzada con reglas personalizadas
         try {
-            // Verificar que el usuario autenticado tenga permisos
-            if (!auth()->user()->can('create', User::class)) {
+            $request->validate([
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    'min:2',
+                    'regex:/^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/'
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                    'unique:users,email',
+                    'max:255'
+                ],
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'confirmed',
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
+                ],
+                'password_confirmation' => [
+                    'required',
+                    'string'
+                ],
+                'estado' => [
+                    'required',
+                    'in:activo,inactivo'
+                ],
+                'roles' => [
+                    'required',
+                    'array',
+                    'min:1',
+                    'max:3'
+                ],
+                'roles.*' => [
+                    'exists:roles,name',
+                    'string'
+                ],
+            ], [
+                'name.required' => 'El nombre es obligatorio.',
+                'name.string' => 'El nombre debe ser texto.',
+                'name.max' => 'El nombre no puede tener más de 255 caracteres.',
+                'name.min' => 'El nombre debe tener al menos 2 caracteres.',
+                'name.regex' => 'El nombre solo puede contener letras y espacios.',
+                'email.required' => 'El correo electrónico es obligatorio.',
+                'email.email' => 'El formato del correo electrónico no es válido.',
+                'email.unique' => 'Este correo electrónico ya está registrado.',
+                'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
+                'password.required' => 'La contraseña es obligatoria.',
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'password.confirmed' => 'Las contraseñas no coinciden.',
+                'password.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
+                'password_confirmation.required' => 'Debe confirmar la contraseña.',
+                'estado.required' => 'El estado es obligatorio.',
+                'estado.in' => 'El estado debe ser activo o inactivo.',
+                'roles.required' => 'Un rol es obligatorio.',
+                'roles.array' => 'Los roles deben ser una lista.',
+                'roles.min' => 'Debe seleccionar al menos un rol.',
+                'roles.max' => 'No puede asignar más de 3 roles.',
+                'roles.*.exists' => 'Uno de los roles seleccionados no existe.',
+                'roles.*.string' => 'Los roles deben ser texto.',
+            ]);
+
+            // Log estratégico: Validación exitosa
+            Log::info('CREACION_USUARIO: Validación exitosa', [
+                'usuario_autenticado' => Auth::id(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Log estratégico: Error de validación
+            Log::warning('CREACION_USUARIO: Error de validación', [
+                'usuario_autenticado' => Auth::id(),
+                'errores' => $e->errors(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            throw $e;
+        }
+
+        try {
+            // Verificar que el usuario autenticado tenga permisos usando roles
+            $currentUser = Auth::user();
+            $hasPermission = $currentUser->hasRole(['Administrador', 'Secretario']);
+            
+            // Log estratégico: Verificación de permisos
+            Log::info('CREACION_USUARIO: Verificando permisos', [
+                'usuario_autenticado' => Auth::id(),
+                'usuario_roles' => $currentUser->roles->pluck('name')->toArray(),
+                'tiene_permisos' => $hasPermission,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            if (!$hasPermission) {
+                Log::warning('CREACION_USUARIO: Sin permisos para crear usuarios', [
+                    'usuario_autenticado' => Auth::id(),
+                    'usuario_roles' => $currentUser->roles->pluck('name')->toArray(),
+                    'timestamp' => now()->toDateTimeString()
+                ]);
                 return redirect()->back()->with('error', 'No tiene permisos para crear usuarios.');
             }
 
             // Verificar límite de usuarios si existe
             $totalUsers = User::count();
+            Log::info('CREACION_USUARIO: Verificando límite de usuarios', [
+                'total_usuarios' => $totalUsers,
+                'limite' => 1000,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
             if ($totalUsers >= 1000) { // Ajustar según necesidades
+                Log::warning('CREACION_USUARIO: Límite de usuarios alcanzado', [
+                    'total_usuarios' => $totalUsers,
+                    'timestamp' => now()->toDateTimeString()
+                ]);
                 return redirect()->back()->with('error', 'Se ha alcanzado el límite máximo de usuarios.');
             }
+
+            // Log estratégico: Iniciando creación del usuario
+            Log::info('CREACION_USUARIO: Iniciando creación en base de datos', [
+                'email' => $request->email,
+                'nombre' => $request->name,
+                'estado' => $request->estado,
+                'roles' => $request->roles,
+                'timestamp' => now()->toDateTimeString()
+            ]);
 
             // Crear el usuario
             $user = new User();
@@ -162,29 +248,53 @@ class UserController extends Controller
             $user->email_verified_at = null; // Requerir verificación
             $user->save();
             
+            // Log estratégico: Usuario creado exitosamente
+            Log::info('CREACION_USUARIO: Usuario creado en base de datos', [
+                'usuario_id' => $user->id,
+                'email' => $user->email,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            
             // Asignar roles
             if ($request->roles) {
+                Log::info('CREACION_USUARIO: Asignando roles', [
+                    'usuario_id' => $user->id,
+                    'roles' => $request->roles,
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+                
                 $user->syncRoles($request->roles);
+                
+                Log::info('CREACION_USUARIO: Roles asignados exitosamente', [
+                    'usuario_id' => $user->id,
+                    'roles_asignados' => $user->roles->pluck('name')->toArray(),
+                    'timestamp' => now()->toDateTimeString()
+                ]);
             }
 
             // Registrar en auditoría
-            Log::info('Usuario creado', [
+            Log::info('CREACION_USUARIO: Proceso completado exitosamente', [
                 'user_id' => $user->id,
                 'created_by' => Auth::id(),
                 'email' => $user->email,
-                'roles' => $request->roles
+                'roles' => $user->roles->pluck('name')->toArray(),
+                'timestamp' => now()->toDateTimeString()
             ]);
 
             // Enviar notificación de bienvenida (opcional)
-            // $user->notify(new WelcomeNotification($request->password));
+            //$user->notify(new WelcomeNotification($request->password));
 
             return redirect()->route('users.index')
                 ->with('success', 'Usuario creado correctamente. Se ha enviado un correo de verificación.');
 
         } catch (\Exception $e) {
-            Log::error('Error al crear usuario', [
+            Log::error('CREACION_USUARIO: Error crítico en el proceso', [
                 'error' => $e->getMessage(),
-                'data' => $request->except(['password', 'password_confirmation'])
+                'linea' => $e->getLine(),
+                'archivo' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->except(['password', 'password_confirmation']),
+                'timestamp' => now()->toDateTimeString()
             ]);
 
             return redirect()->back()
@@ -195,58 +305,278 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        $roles = Role::all();
-        return view('users.edit', compact('user', 'roles'));
+        // Log estratégico: Acceso a formulario de edición
+        Log::info('ACTUALIZACION_USUARIO: Accediendo al formulario de edición', [
+            'usuario_autenticado' => Auth::id(),
+            'usuario_a_editar' => $user->id,
+            'email_a_editar' => $user->email,
+            'usuario_roles' => Auth::user()->roles->pluck('name')->toArray(),
+            'timestamp' => now()->toDateTimeString()
+        ]);
+
+        try {
+            // Verificar permisos de edición
+            $currentUser = Auth::user();
+            $canEdit = $currentUser->hasRole(['Administrador', 'Secretario']) || $currentUser->id === $user->id;
+            
+            Log::info('ACTUALIZACION_USUARIO: Verificando permisos de edición', [
+                'usuario_autenticado' => Auth::id(),
+                'puede_editar' => $canEdit,
+                'es_propio_perfil' => $currentUser->id === $user->id,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            if (!$canEdit) {
+                Log::warning('ACTUALIZACION_USUARIO: Sin permisos para editar usuario', [
+                    'usuario_autenticado' => Auth::id(),
+                    'usuario_a_editar' => $user->id,
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+                return redirect()->route('users.index')->with('error', 'No tiene permisos para editar este usuario.');
+            }
+
+            $roles = Role::all();
+            
+            // Log estratégico: Roles disponibles y datos del usuario
+            Log::info('ACTUALIZACION_USUARIO: Cargando datos para edición', [
+                'usuario_a_editar' => $user->id,
+                'roles_actuales' => $user->roles->pluck('name')->toArray(),
+                'estado_actual' => $user->estado,
+                'total_roles_disponibles' => $roles->count(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return view('users.edit', compact('user', 'roles'));
+            
+        } catch (\Exception $e) {
+            Log::error('ACTUALIZACION_USUARIO: Error al cargar formulario de edición', [
+                'error' => $e->getMessage(),
+                'usuario_a_editar' => $user->id,
+                'archivo' => $e->getFile(),
+                'linea' => $e->getLine(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return redirect()->route('users.index')
+                ->with('error', 'Error al cargar el formulario de edición.');
+        }
     }
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'estado' => 'required|in:activo,inactivo',
-            'roles' => 'required|array|size:1',
-            'roles.*' => 'exists:roles,name',
-        ], [
+        // Log estratégico: Inicio del proceso de actualización
+        Log::info('ACTUALIZACION_USUARIO: Iniciando proceso de actualización', [
+            'usuario_autenticado' => Auth::id(),
+            'usuario_a_actualizar' => $user->id,
+            'email_original' => $user->email,
+            'datos_recibidos' => $request->except(['password', 'password_confirmation']),
+            'timestamp' => now()->toDateTimeString()
+        ]);
+
+        // Validación de permisos
+        $currentUser = Auth::user();
+        $canEdit = $currentUser->hasRole(['Administrador', 'Secretario']) || $currentUser->id === $user->id;
+
+        if (!$canEdit) {
+            Log::warning('ACTUALIZACION_USUARIO: Sin permisos para actualizar usuario', [
+                'usuario_autenticado' => Auth::id(),
+                'usuario_a_actualizar' => $user->id,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            return redirect()->route('users.index')->with('error', 'No tiene permisos para actualizar este usuario.');
+        }
+
+        // Validaciones mejoradas
+        $rules = [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'min:2',
+                'regex:/^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/'
+            ],
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email,' . $user->id,
+                'max:255'
+            ],
+            'estado' => [
+                'required',
+                'in:activo,inactivo'
+            ],
+        ];
+
+        // Solo los admin/secretarios pueden cambiar roles
+        if ($currentUser->hasRole(['Administrador', 'Secretario'])) {
+            $rules['roles'] = [
+                'required',
+                'array',
+                'min:1',
+                'max:3'
+            ];
+            $rules['roles.*'] = [
+                'exists:roles,name',
+                'string'
+            ];
+        }
+
+        // Validación de contraseña solo si se proporciona
+        if ($request->filled('password')) {
+            $rules['password'] = [
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
+            ];
+            $rules['password_confirmation'] = ['required', 'string'];
+        }
+
+        $messages = [
             'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser texto.',
             'name.max' => 'El nombre no puede tener más de 255 caracteres.',
+            'name.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'name.regex' => 'El nombre solo puede contener letras y espacios.',
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El formato del correo electrónico no es válido.',
             'email.unique' => 'Este correo electrónico ya está registrado.',
+            'email.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
             'estado.required' => 'El estado es obligatorio.',
             'estado.in' => 'El estado debe ser activo o inactivo.',
             'roles.required' => 'Debe seleccionar al menos un rol.',
             'roles.array' => 'Los roles deben ser una lista.',
             'roles.min' => 'Debe seleccionar al menos un rol.',
+            'roles.max' => 'No puede asignar más de 3 roles.',
             'roles.*.exists' => 'Uno de los roles seleccionados no existe.',
-        ]);
+        ];
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
+        try {
+            $request->validate($rules, $messages);
+
+            // Log estratégico: Validación exitosa
+            Log::info('ACTUALIZACION_USUARIO: Validación exitosa', [
+                'usuario_autenticado' => Auth::id(),
+                'usuario_a_actualizar' => $user->id,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Log estratégico: Error de validación
+            Log::warning('ACTUALIZACION_USUARIO: Error de validación', [
+                'usuario_autenticado' => Auth::id(),
+                'usuario_a_actualizar' => $user->id,
+                'errores' => $e->errors(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            throw $e;
         }
-        $user->estado = $request->estado;
-        $user->save();
-        
-        if ($request->roles) {
-            $user->syncRoles($request->roles);
-        }
-        
-        // Sincronizar estado con Cliente si es cliente
-        if ($user->hasRole('cliente')) {
-            $user->load('cliente');
-            if ($user->cliente) {
-                $user->cliente->estado = $user->estado;
-                $user->cliente->save();
+
+        try {
+            // Guardar datos originales para auditoría
+            $datosOriginales = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'estado' => $user->estado,
+                'roles' => $user->roles->pluck('name')->toArray()
+            ];
+
+            // Log estratégico: Iniciando actualización
+            Log::info('ACTUALIZACION_USUARIO: Iniciando actualización en base de datos', [
+                'usuario_a_actualizar' => $user->id,
+                'datos_originales' => $datosOriginales,
+                'datos_nuevos' => $request->except(['password', 'password_confirmation']),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            // Actualizar datos básicos
+            $user->name = trim($request->name);
+            $user->email = strtolower(trim($request->email));
+            $user->estado = $request->estado;
+            
+            // Actualizar contraseña si se proporciona
+            if ($request->filled('password')) {
+                Log::info('ACTUALIZACION_USUARIO: Actualizando contraseña', [
+                    'usuario_a_actualizar' => $user->id,
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+                $user->password = Hash::make($request->password);
             }
+
+            $user->save();
+
+            // Log estratégico: Usuario actualizado
+            Log::info('ACTUALIZACION_USUARIO: Datos básicos actualizados', [
+                'usuario_id' => $user->id,
+                'email_actualizado' => $user->email,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            
+            // Actualizar roles solo si el usuario tiene permisos
+            if ($currentUser->hasRole(['Administrador', 'Secretario']) && $request->has('roles')) {
+                $rolesOriginales = $user->roles->pluck('name')->toArray();
+                
+                Log::info('ACTUALIZACION_USUARIO: Actualizando roles', [
+                    'usuario_id' => $user->id,
+                    'roles_originales' => $rolesOriginales,
+                    'roles_nuevos' => $request->roles,
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+                
+                $user->syncRoles($request->roles);
+                
+                Log::info('ACTUALIZACION_USUARIO: Roles actualizados exitosamente', [
+                    'usuario_id' => $user->id,
+                    'roles_finales' => $user->roles->pluck('name')->toArray(),
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+            }
+            
+            // Sincronizar estado con Cliente si es cliente
+            if ($user->hasRole('Cliente')) {
+                $user->load('cliente');
+                if ($user->cliente) {
+                    Log::info('ACTUALIZACION_USUARIO: Sincronizando estado con cliente', [
+                        'usuario_id' => $user->id,
+                        'cliente_id' => $user->cliente->id,
+                        'estado' => $user->estado,
+                        'timestamp' => now()->toDateTimeString()
+                    ]);
+                    
+                    $user->cliente->estado = $user->estado;
+                    $user->cliente->save();
+                }
+            }
+
+            // Log estratégico: Proceso completado
+            Log::info('ACTUALIZACION_USUARIO: Proceso completado exitosamente', [
+                'usuario_id' => $user->id,
+                'actualizado_por' => Auth::id(),
+                'email_final' => $user->email,
+                'roles_finales' => $user->roles->pluck('name')->toArray(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            
+            return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+
+        } catch (\Exception $e) {
+            Log::error('ACTUALIZACION_USUARIO: Error crítico en el proceso', [
+                'error' => $e->getMessage(),
+                'linea' => $e->getLine(),
+                'archivo' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+                'usuario_a_actualizar' => $user->id,
+                'data' => $request->except(['password', 'password_confirmation']),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Error al actualizar el usuario. Por favor, intente nuevamente.')
+                ->withInput($request->except(['password', 'password_confirmation']));
         }
-        
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
     public function destroy(Request $request, User $user)
@@ -502,10 +832,12 @@ class UserController extends Controller
             $query->select('id', 'tokenable_id', 'tokenable_type', 'name', 'plaintext_token', 'last_used_at', 'created_at', 'abilities');
         }, 'roles'])->where('estado', 'activo')->get();
         
-        // Obtener clientes activos con sus tokens (incluyendo soft deletes)
-        $clientes = Cliente::with(['tokens' => function($query) {
+        // Obtener clientes activos con sus tokens (usuarios con rol Cliente)
+        $clientes = User::with(['tokens' => function($query) {
             $query->select('id', 'tokenable_id', 'tokenable_type', 'name', 'plaintext_token', 'last_used_at', 'created_at', 'abilities');
-        }])->where('estado', 'activo')->whereNull('deleted_at')->get();
+        }, 'roles'])->whereHas('roles', function($query) {
+            $query->where('name', 'Cliente');
+        })->where('estado', 'activo')->get();
         
         // Función para desencriptar tokens
         $desencriptarTokens = function($entidad) {
@@ -577,8 +909,11 @@ class UserController extends Controller
                 $entidad = User::where('estado', 'activo')->findOrFail($request->entidad_id);
                 $entidadNombre = $entidad->name;
             } else {
-                $entidad = Cliente::where('estado', 'activo')->findOrFail($request->entidad_id);
-                $entidadNombre = $entidad->nombre;
+                // Para cliente, también usar User pero con rol Cliente
+                $entidad = User::whereHas('roles', function($query) {
+                    $query->where('name', 'Cliente');
+                })->where('estado', 'activo')->findOrFail($request->entidad_id);
+                $entidadNombre = $entidad->name;
             }
             
             $token = $entidad->createToken($request->token_name);

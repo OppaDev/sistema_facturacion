@@ -210,7 +210,7 @@
                 <tbody>
                   @foreach($ultimasVentas ?? [] as $venta)
                   <tr>
-                    <td>{{ $venta->cliente->nombre ?? 'Cliente eliminado' }}</td>
+                    <td>{{ $venta->cliente->name ?? 'Cliente eliminado' }}</td>
                     <td>#{{ $venta->factura_id ?? '-' }}</td>
                     <td>${{ number_format($venta->monto ?? 0, 2) }}</td>
                     <td>{{ $venta->fecha ?? '-' }}</td>

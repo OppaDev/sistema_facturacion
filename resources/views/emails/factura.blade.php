@@ -61,7 +61,7 @@
         <h2>Factura Electrónica #{{ $factura->getNumeroFormateado() }}</h2>
         
         <div class="factura-info">
-            <p><strong>Cliente:</strong> {{ $factura->cliente->nombre ?? 'Cliente eliminado' }}</p>
+            <p><strong>Cliente:</strong> {{ $factura->cliente->name ?? 'Cliente eliminado' }}</p>
             <p><strong>Fecha:</strong> {{ $factura->created_at->format('d/m/Y') }}</p>
             <p><strong>Total:</strong> ${{ number_format($factura->total, 2) }}</p>
             <p><strong>Estado:</strong> 
@@ -75,7 +75,7 @@
             </p>
         </div>
         
-        @if($mensaje)
+        @if(isset($mensaje) && !empty($mensaje))
             <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0;">
                 <h3>Mensaje:</h3>
                 <p>{{ $mensaje }}</p>

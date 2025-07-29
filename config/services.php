@@ -22,6 +22,11 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'maileroo' => [
+        'api_key' => env('MAILEROO_API_KEY'),
+        'domain' => env('MAILEROO_DOMAIN'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('facturas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('cliente_id');
+            $table->unsignedBigInteger('cliente_id'); // Ahora referencia directamente a users
             $table->unsignedBigInteger('usuario_id')->nullable();
             $table->unsignedBigInteger('factura_original_id')->nullable();
             // SRI y datos electrónicos
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->softDeletes();
             
             // Claves foráneas
-            $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade');
+            $table->foreign('cliente_id')->references('id')->on('users')->onDelete('cascade'); // Cambio: ahora referencia users
             $table->foreign('usuario_id')->references('id')->on('users')->nullOnDelete();
             $table->foreign('factura_original_id')->references('id')->on('facturas')->nullOnDelete();
             $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();

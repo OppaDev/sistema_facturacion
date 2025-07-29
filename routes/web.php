@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\FacturasController;
 use App\Http\Controllers\AuditoriaController;
@@ -19,7 +18,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'check.user.status'])->name('dashboard');
 
-Route::post('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'check.user.status'])->name('dashboard');
+Route::post('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'check.user.status'])->name('dashboard.post');
 
 Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,14 +29,18 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
 
 Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () {
 
-    // Clientes: Acceso para Administrador y Secretario
-    Route::resource('clientes', ClientesController::class)
-        ->middleware('role:Administrador|Secretario');
+    // Gestión de Usuarios (incluyendo clientes): Solo Administrador y Secretario
+    Route::resource('users', UserController::class)
+        ->middleware('role:Administrador|Secretario')
+        ->except(['show']);
     
-    // Rutas adicionales para clientes
+    // Rutas adicionales para usuarios
     Route::middleware('role:Administrador|Secretario')->group(function () {
-        Route::post('/clientes/{id}/restore', [ClientesController::class, 'restore'])->name('clientes.restore');
-        Route::delete('/clientes/{id}/force-delete', [ClientesController::class, 'forceDelete'])->name('clientes.force-delete');
+        Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+        Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+        Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
+        Route::post('/users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
+        Route::post('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
     });
 
     // Rutas de exportar y reportes (deben ir antes del resource para evitar conflicto)
@@ -102,16 +105,11 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::get('/roles/create', [RolesController::class, 'create'])->name('roles.create');
         Route::post('/roles', [RolesController::class, 'store'])->name('roles.store');
         Route::delete('/roles/{id}', [RolesController::class, 'destroy'])->name('roles.destroy');
-    });
-
-    // Rutas de Usuarios: Solo Administrador
-    Route::middleware('role:Administrador')->group(function () {
-        Route::resource('users', UserController::class);
+        
+        // Rutas adicionales para usuarios (solo Administrador)
         Route::post('/users/{user}/toggle-estado', [UserController::class, 'toggleEstado'])->name('users.toggleEstado');
         Route::post('/users/{user}/activar', [UserController::class, 'activarUsuario'])->name('users.activar');
         Route::post('/users/{user}/desactivar', [UserController::class, 'desactivarUsuario'])->name('users.desactivar');
-        Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-        Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
         Route::post('/users/cancelar-borrado', [UserController::class, 'cancelarBorradoCuenta'])->name('users.cancelarBorradoCuenta');
         
         // Rutas para gestión de tokens API
