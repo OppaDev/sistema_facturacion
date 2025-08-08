@@ -42,7 +42,7 @@ class TestEmailDetallado extends Command
             $factura->subtotal = 100.00;
             $factura->iva = 12.00;
             $factura->total = 112.00;
-            $factura->estado = 'activa';
+            $factura->estado = 'pendiente';
             $factura->usuario_id = 1;
             $factura->save();
             

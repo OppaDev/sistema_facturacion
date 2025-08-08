@@ -188,7 +188,13 @@
           <div class="mb-2 d-flex justify-content-between"><span class="text-muted">CUA:</span><span class="fw-bold">{{ $factura->getCUAFormateado() }}</span></div>
           <div class="mb-2 d-flex justify-content-between"><span class="text-muted">Ambiente:</span><span>{{ $factura->ambiente ?? 'PRODUCCION' }}</span></div>
           <div class="mb-2 d-flex justify-content-between"><span class="text-muted">Tipo Emisión:</span><span>{{ $factura->tipo_emision ?? 'NORMAL' }}</span></div>
-          <div class="d-flex justify-content-between"><span class="text-muted">Forma de Pago:</span><span>{{ $factura->forma_pago ?? 'EFECTIVO' }}</span></div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Forma de Pago:</span>
+            <span>
+              @php $pagoAprobado = $factura->pagos()->where('estado', 'aprobado')->first(); @endphp
+              {{ $pagoAprobado ? ucfirst($pagoAprobado->tipo_pago) : 'Pendiente de pago' }}
+            </span>
+          </div>
                 </div>
             </div>
             <!-- Información del Sistema -->
@@ -341,7 +347,7 @@
                       <div class="mb-2"><span class="text-muted small">Estado:</span><span class="badge bg-{{ $factura->getEstadoAutorizacion() === 'AUTORIZADO' ? 'success' : ($factura->getEstadoAutorizacion() === 'PROCESANDO' ? 'warning' : 'info') }} ms-2">{{ $factura->getEstadoAutorizacion() }}</span></div>
                       <div class="mb-2"><span class="text-muted small">Fecha:</span><span class="fw-bold ms-2">{{ $factura->fecha_emision ? $factura->fecha_emision->format('d/m/Y') : $factura->created_at->format('d/m/Y') }}</span></div>
                       <div class="mb-2"><span class="text-muted small">Hora:</span><span class="fw-bold ms-2">{{ $factura->hora_emision ?? $factura->created_at->format('H:i') }}</span></div>
-                      <div class="mb-2"><span class="text-muted small">Pago:</span><span class="fw-bold ms-2">{{ $factura->forma_pago ?? 'EFECTIVO' }}</span></div>
+                      <div class="mb-2"><span class="text-muted small">Pago:</span><span class="fw-bold ms-2">@php $pagoAprobado = $factura->pagos()->where('estado', 'aprobado')->first(); @endphp{{ $pagoAprobado ? ucfirst($pagoAprobado->tipo_pago) : 'Pendiente' }}</span></div>
                                     </div>
                                 </div>
                             </div>

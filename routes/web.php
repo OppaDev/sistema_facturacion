@@ -118,6 +118,14 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::delete('/tokens/{token}', [UserController::class, 'eliminarToken'])->name('tokens.destroy');
     });
 
+    // Rutas de Pagos: Solo rol Pagos y Administrador
+    Route::middleware('role:Administrador|Pagos')->group(function () {
+        Route::get('/pagos', [App\Http\Controllers\PagoController::class, 'index'])->name('pagos.index');
+        Route::post('/pagos/{pago}/aprobar', [App\Http\Controllers\PagoController::class, 'aprobar'])->name('pagos.aprobar');
+        Route::post('/pagos/{pago}/rechazar', [App\Http\Controllers\PagoController::class, 'rechazar'])->name('pagos.rechazar');
+        Route::get('/pagos/{pago}', [App\Http\Controllers\PagoController::class, 'show'])->name('pagos.show');
+    });
+
 });
 
 require __DIR__.'/auth.php';

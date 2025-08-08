@@ -7,14 +7,11 @@ parameters:
     paths:
         - app/
         - resources/views
+        - routes/
 
-    # Level 10 is the highest level
     level: 5
-    
-    # No reportar patrones de ignore no usados
     reportUnmatchedIgnoredErrors: false
 
-    # Ignorar falsos positivos comunes
     ignoreErrors:
         # Ignorar el método option() en comandos de Artisan (falso positivo conocido)
         - '#Call to an undefined method Illuminate\\Console\\Command::option\(\)#'

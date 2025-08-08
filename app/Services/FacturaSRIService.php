@@ -79,7 +79,7 @@ class FacturaSRIService
             'ambiente' => $factura->ambiente,
             'tipo_emision' => $factura->tipo_emision,
             'tipo_documento' => $factura->tipo_documento,
-            'forma_pago' => $factura->forma_pago,
+            'forma_pago' => 'PENDIENTE', // Se definirá cuando el cliente pague
             'cua' => $factura->cua
         ];
 
@@ -105,7 +105,7 @@ class FacturaSRIService
             'secuencial' => $factura->numero_secuencial,
             'fechaEmision' => $factura->fecha_emision,
             'total' => number_format((float) $factura->total, 2, '.', ''),
-            'tipoPago' => $factura->forma_pago,
+            'tipoPago' => 'PENDIENTE', // Se definirá cuando el cliente pague
             'ambiente' => 'PROD',
             'cua' => $factura->cua,
             'firmaDigital' => $factura->firma_digital,

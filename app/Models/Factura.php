@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\FacturaSRIService;
 use App\Models\FacturaDetalle;
 use App\Models\User;
+use App\Traits\HasObfuscatedId;
 
 class Factura extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasObfuscatedId;
 
     protected $fillable = [
         'cliente_id',
@@ -33,7 +34,6 @@ class Factura extends Model
         'ambiente',
         'tipo_emision',
         'tipo_documento',
-        'forma_pago',
         'contenido_qr',
         'imagen_qr',
         // Nuevos campos para estado de firma y emisión
@@ -52,6 +52,21 @@ class Factura extends Model
         'fecha_emision' => 'date',
         'fecha_firma' => 'datetime',
         'fecha_emision_email' => 'datetime'
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'firma_digital',
+        'cua',
+        'created_by',
+        'updated_by',
+        'deleted_at',
+        'motivo_anulacion',
+        'contenido_qr',
     ];
 
     public function cliente()
@@ -89,6 +104,11 @@ class Factura extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class);
+    }
+
     /**
      * Verificar si la factura está anulada
      */
@@ -98,11 +118,27 @@ class Factura extends Model
     }
 
     /**
-     * Verificar si la factura está activa
+     * Verificar si la factura está pendiente
+     */
+    public function isPendiente()
+    {
+        return $this->estado === 'pendiente';
+    }
+
+    /**
+     * Verificar si la factura está pagada
+     */
+    public function isPagada()
+    {
+        return $this->estado === 'pagada';
+    }
+
+    /**
+     * Verificar si la factura está activa (pendiente o pagada)
      */
     public function isActiva()
     {
-        return $this->estado === 'activa';
+        return in_array($this->estado, ['pendiente', 'pagada']);
     }
 
     /**

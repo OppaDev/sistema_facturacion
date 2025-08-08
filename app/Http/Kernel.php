@@ -41,7 +41,11 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\SecurityValidator::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\ApiAuditLogger::class,
+            \App\Http\Middleware\AuditTokenUsage::class,
+            \App\Http\Middleware\ApiErrorHandler::class,
         ],
     ];
 
@@ -61,5 +65,8 @@ class Kernel extends HttpKernel
         // 'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         // 'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'audit.token' => \App\Http\Middleware\AuditTokenUsage::class,
+        'api.audit' => \App\Http\Middleware\ApiAuditLogger::class,
+        'api.errors' => \App\Http\Middleware\ApiErrorHandler::class,
     ];
 } 

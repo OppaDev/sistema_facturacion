@@ -28,12 +28,11 @@ return new class extends Migration
             $table->string('cua', 49)->nullable();
             $table->string('firma_digital', 255)->nullable();
             $table->string('codigo_qr', 255)->nullable();
-            $table->string('forma_pago', 50)->nullable();
             $table->timestamp('fecha_autorizacion')->nullable();
             $table->decimal('subtotal', 10, 2);
             $table->decimal('iva', 10, 2);
             $table->decimal('total', 10, 2);
-            $table->enum('estado', ['activa', 'anulada'])->default('activa');
+            $table->enum('estado', ['pendiente', 'pagada', 'anulada'])->default('pendiente');
             $table->text('motivo_anulacion')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

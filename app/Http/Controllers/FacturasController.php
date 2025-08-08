@@ -161,9 +161,8 @@ class FacturasController extends Controller
                 'subtotal' => $subtotal,
                 'iva' => $iva,
                 'total' => $total,
-                'estado' => 'activa',
+                'estado' => 'pendiente',
                 'created_by' => $data['created_by'],
-                'forma_pago' => $data['forma_pago'] ?? 'EFECTIVO',
                 'estado_firma' => 'PENDIENTE',
                 'estado_emision' => 'PENDIENTE',
             ]);
@@ -464,7 +463,7 @@ class FacturasController extends Controller
                     'productos' => $productos,
                     'total' => $total,
                     'created_at' => now(),
-                    'estado' => 'activa',
+                    'estado' => 'pendiente',
                 ],
                 'esPreview' => true
             ]);

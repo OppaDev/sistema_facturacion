@@ -155,7 +155,7 @@
                                             </div>
                                             <div class="info-item d-flex justify-content-between mb-2">
                                                 <span class="text-muted">Forma de Pago:</span>
-                                                <span>{{ $factura->forma_pago ?? 'EFECTIVO' }}</span>
+                                                <span>@php $pagoAprobado = $factura->pagos()->where('estado', 'aprobado')->first(); @endphp{{ $pagoAprobado ? ucfirst($pagoAprobado->tipo_pago) : 'Pendiente de pago' }}</span>
                                             </div>
                                             <div class="info-item d-flex justify-content-between mb-2">
                                                 <span class="text-muted">Tipo Documento:</span>

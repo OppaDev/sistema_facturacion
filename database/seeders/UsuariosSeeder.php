@@ -50,5 +50,14 @@ class UsuariosSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
         $ventas->assignRole('Ventas');
+
+        // crear usuario pago
+        $pago = User::create([
+            'name' => 'Pagos',
+            'email' => 'pagos@gmail.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+        $pago->assignRole('Pagos');
     }
 }

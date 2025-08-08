@@ -72,23 +72,6 @@
                                 @enderror
                             </div>
                         </div>
-                        <!-- Card Forma de Pago -->
-                        <div class="card mb-4 border-0 shadow-sm">
-                            <div class="card-header bg-light d-flex align-items-center gap-2">
-                                <i class="bx bx-credit-card text-primary"></i>
-                                <span class="fw-bold">Forma de Pago</span>
-                                <span class="ms-auto" data-bs-toggle="tooltip" title="La forma de pago se incluirá en la factura electrónica"><i class="bx bx-info-circle text-info"></i></span>
-                            </div>
-                            <div class="card-body">
-                                <select name="forma_pago" id="forma_pago" class="form-select form-select-lg select2">
-                                    <option value="EFECTIVO">Efectivo</option>
-                                    <option value="TARJETA">Tarjeta de Crédito/Débito</option>
-                                    <option value="TRANSFERENCIA">Transferencia Bancaria</option>
-                                    <option value="CHEQUE">Cheque</option>
-                                    <option value="OTROS">Otros</option>
-                                </select>
-                            </div>
-                        </div>
                         <!-- Card Resumen -->
                         <div class="card mb-4 border-0 shadow-sm">
                             <div class="card-header bg-light d-flex align-items-center gap-2">
@@ -606,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const clienteNombre = clienteOption.text.split(' - ')[0];
         const clienteEmail = clienteOption.text.split(' - ')[1];
         
-        const formaPago = document.getElementById('forma_pago').value;
         const productos = productosContainer.querySelectorAll('.producto-item');
         let subtotal = 0;
         let productosHTML = '';

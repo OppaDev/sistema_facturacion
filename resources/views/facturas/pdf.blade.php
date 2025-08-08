@@ -278,7 +278,7 @@
             <div class="info-row"><span class="info-label">Fecha:</span> {{ $factura->created_at->format('d/m/Y') }}</div>
             <div class="info-row"><span class="info-label">Hora:</span> {{ $factura->created_at->format('H:i') }}</div>
             <div class="info-row"><span class="info-label">Vendedor:</span> {{ $factura->usuario->name ?? 'Usuario eliminado' }}</div>
-            <div class="info-row"><span class="info-label">Forma de Pago:</span> {{ $factura->forma_pago ?? 'EFECTIVO' }}</div>
+            <div class="info-row"><span class="info-label">Forma de Pago:</span> @php $pagoAprobado = $factura->pagos()->where('estado', 'aprobado')->first(); @endphp{{ $pagoAprobado ? ucfirst($pagoAprobado->tipo_pago) : 'Pendiente de pago' }}</div>
         </div>
         <div class="col card">
             <div class="card-title">Datos SRI</div>

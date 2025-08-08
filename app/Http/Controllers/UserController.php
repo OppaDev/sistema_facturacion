@@ -923,7 +923,24 @@ class UserController extends Controller
             $personalAccessToken->plaintext_token = Crypt::encryptString($token->plainTextToken);
             $personalAccessToken->save();
             
-            // Registrar en auditoría
+            // Registrar en auditoría completa
+            \App\Models\Auditoria::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'model_type' => 'Laravel\Sanctum\PersonalAccessToken',
+                'model_id' => $personalAccessToken->id,
+                'old_values' => null,
+                'new_values' => json_encode([
+                    'token_name' => $request->token_name,
+                    'entidad_tipo' => $request->entidad_tipo,
+                    'entidad_id' => $entidad->id,
+                    'entidad_nombre' => $entidadNombre
+                ]),
+                'description' => "Token API '{$request->token_name}' creado para {$request->entidad_tipo}: {$entidadNombre}",
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent')
+            ]);
+            
             Log::info('Token API creado', [
                 'entidad_tipo' => $request->entidad_tipo,
                 'entidad_id' => $entidad->id,
@@ -962,10 +979,27 @@ class UserController extends Controller
             $token = PersonalAccessToken::findOrFail($tokenId);
             $tokenName = $token->name;
             $userId = $token->tokenable_id;
+            $user = User::find($userId);
+            
+            // Registrar en auditoría completa ANTES de eliminar
+            \App\Models\Auditoria::create([
+                'user_id' => Auth::id(),
+                'action' => 'delete',
+                'model_type' => 'Laravel\Sanctum\PersonalAccessToken',
+                'model_id' => $token->id,
+                'old_values' => json_encode([
+                    'token_name' => $tokenName,
+                    'tokenable_id' => $userId,
+                    'tokenable_name' => $user ? $user->name : 'Usuario no encontrado'
+                ]),
+                'new_values' => null,
+                'description' => "Token API '{$tokenName}' eliminado del usuario: " . ($user ? $user->name : 'Usuario no encontrado'),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent')
+            ]);
             
             $token->delete();
 
-            // Registrar en auditoría
             Log::info('Token API eliminado', [
                 'token_name' => $tokenName,
                 'user_id' => $userId,

@@ -42,6 +42,13 @@ class Auditoria extends Model
             $factura = \App\Models\Factura::withTrashed()->find($this->model_id);
             return $factura ? 'Factura #' . $factura->id : 'Factura no encontrada';
         }
+        if ($this->model_type === 'Laravel\Sanctum\PersonalAccessToken') {
+            $newValues = json_decode($this->new_values, true);
+            $oldValues = json_decode($this->old_values, true);
+            
+            $tokenName = $newValues['token_name'] ?? $oldValues['token_name'] ?? 'Token desconocido';
+            return "Token API: {$tokenName}";
+        }
         return 'ID: ' . $this->model_id;
     }
 }

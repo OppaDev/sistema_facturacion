@@ -143,6 +143,24 @@
             </li>
             @endrole
 
+            <!-- Pagos -->
+            @hasanyrole('Administrador|Pagos')
+            <li class="menu-item {{ request()->routeIs('pagos.*') ? 'active' : '' }}">
+              <a href="{{ route('pagos.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-credit-card"></i>
+                <div class="text-truncate" data-i18n="Pagos">
+                  Pagos
+                  @php
+                    $pagosPendientes = \App\Models\Pago::where('estado', 'pendiente')->count();
+                  @endphp
+                  @if($pagosPendientes > 0)
+                    <span class="badge bg-warning ms-2">{{ $pagosPendientes }}</span>
+                  @endif
+                </div>
+              </a>
+            </li>
+            @endhasanyrole
+
             <!-- Usuarios -->
             @role('Administrador|Secretario')
             <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
