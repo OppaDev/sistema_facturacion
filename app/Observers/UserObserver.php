@@ -15,7 +15,8 @@ class UserObserver
     {
         // Si el usuario se registra desde el frontend público y no tiene rol asignado,
         // asignar automáticamente el rol de Cliente
-        if (!$user->roles()->exists()) {
+        // PERO NO si se están ejecutando seeders (para evitar roles duplicados)
+        if (!$user->roles()->exists() && !app()->runningInConsole()) {
             $clienteRole = Role::where('name', 'Cliente')->first();
             if ($clienteRole) {
                 $user->assignRole($clienteRole);

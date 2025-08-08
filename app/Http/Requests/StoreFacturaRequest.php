@@ -64,11 +64,6 @@ class StoreFacturaRequest extends FormRequest
                 'min:1',
                 'max:9999',
             ],
-            'forma_pago' => [
-                'nullable',
-                'string',
-                'in:EFECTIVO,TARJETA,TRANSFERENCIA,CHEQUE,OTROS',
-            ],
         ];
     }
 

@@ -84,6 +84,24 @@
             </a>
         </li>
         @endrole
+
+        <!-- Gestión de Pagos: Administrador y rol Pagos -->
+        @hasanyrole('Administrador|Pagos')
+        <li class="nav-item">
+            <a href="{{ route('pagos.index') }}" class="nav-link {{ request()->is('pagos*') ? 'active' : '' }}">
+                <i class="nav-icon bi bi-credit-card"></i>
+                <p>
+                    Gestión de Pagos
+                    @php
+                        $pagosPendientes = \App\Models\Pago::where('estado', 'pendiente')->count();
+                    @endphp
+                    @if($pagosPendientes > 0)
+                        <span class="badge badge-warning right">{{ $pagosPendientes }}</span>
+                    @endif
+                </p>
+            </a>
+        </li>
+        @endhasanyrole
     </ul>
   </div>
   <!-- /.sidebar -->

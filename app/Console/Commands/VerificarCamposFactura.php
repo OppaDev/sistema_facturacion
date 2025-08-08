@@ -47,8 +47,7 @@ class VerificarCamposFactura extends Command
             'mensaje_autorizacion',
             'firma_digital',
             'contenido_qr',
-            'imagen_qr',
-            'forma_pago'
+            'imagen_qr'
         ];
         
         $this->line("\nCampos SRI:");

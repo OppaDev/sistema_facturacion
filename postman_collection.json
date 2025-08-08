@@ -1,0 +1,1385 @@
+{
+  "info": {
+    "name": "Sistema de Facturación - API REST (Estado Actual)",
+    "description": "Colección corregida con endpoints realmente disponibles en el sistema",
+    "version": "1.1.0",
+    "_postman_id": "facturacion-api-collection-actual",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "Ip_puerto",
+      "value": "localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Token Sanctum obtenido automáticamente con login API"
+    },
+    {
+      "key": "cliente_id",
+      "value": "10",
+      "type": "string",
+      "description": "ID del cliente para pruebas"
+    },
+    {
+      "key": "producto_id",
+      "value": "1",
+      "type": "string",
+      "description": "ID del producto para pruebas"
+    },
+    {
+      "key": "factura_id",
+      "value": "1",
+      "type": "string",
+      "description": "ID de la factura - se actualiza automáticamente al crear una"
+    },
+    {
+      "key": "pago_id",
+      "value": "1",
+      "type": "string",
+      "description": "ID del pago - se actualiza automáticamente al registrar uno"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "🔐 Autenticación API",
+      "item": [
+        {
+          "name": "Login - Obtener Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('token', response.data.token);",
+                  "        pm.test('Token guardado exitosamente', function () {",
+                  "            pm.expect(response.data.token).to.be.a('string');",
+                  "            pm.expect(response.data.user.name).to.be.a('string');",
+                  "        });",
+                  "        console.log('✅ Token guardado: ' + response.data.token.substring(0, 20) + '...');",
+                  "        console.log('👤 Usuario: ' + response.data.user.name);",
+                  "        console.log('📧 Email: ' + response.data.user.email);",
+                  "    }",
+                  "} else if (pm.response.code === 422) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('❌ Error de validación:', response.errors);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"luisrodriguez@gmail.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/login",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            },
+            "description": "✅ NUEVO - Autenticación directa en API\n\n📝 Credenciales de prueba:\n- luisrodriguez@gmail.com / password\n- juanperez@gmail.com / password\n- mariagarcia@gmail.com / password\n\n🔐 El token se guarda automáticamente en la variable {{token}}"
+          }
+        },
+        {
+          "name": "Logout - Revocar Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/logout",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "logout"
+              ]
+            },
+            "description": "✅ NUEVO - Cerrar sesión y revocar token actual"
+          }
+        },
+        {
+          "name": "Renovar Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('token', response.data.token);",
+                  "        pm.test('Token renovado exitosamente', function () {",
+                  "            pm.expect(response.data.token).to.be.a('string');",
+                  "        });",
+                  "        console.log('🔄 Token renovado: ' + response.data.token.substring(0, 20) + '...');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/refresh-token",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "refresh-token"
+              ]
+            },
+            "description": "✅ NUEVO - Renovar token actual (revoca el anterior y crea uno nuevo)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Perfil Usuario",
+      "item": [
+        {
+          "name": "Mi Perfil Completo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/me",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "me"
+              ]
+            },
+            "description": "✅ NUEVO - Información completa del usuario autenticado (perfil + info del token)"
+          }
+        },
+        {
+          "name": "Usuario Básico (compatibilidad)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/user",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "user"
+              ]
+            },
+            "description": "✅ DISPONIBLE - Endpoint anterior mantenido por compatibilidad"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Clientes (Admin/Secretario)",
+      "item": [
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/clientes?per_page=10&estado=activo",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10",
+                  "description": "Elementos por página"
+                },
+                {
+                  "key": "estado",
+                  "value": "activo",
+                  "description": "activo, inactivo, eliminados, pendientes"
+                },
+                {
+                  "key": "buscar",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Buscar por nombre, email o teléfono"
+                }
+              ]
+            },
+            "description": "✅ NUEVO - Listar todos los clientes con filtros y paginación (Solo Admin/Secretario)"
+          }
+        },
+        {
+          "name": "Crear Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Nuevo Cliente API\",\n    \"email\": \"cliente_api@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"telefono\": \"0999888777\",\n    \"direccion\": \"Av. Test API 123\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/clientes",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "✅ NUEVO - Crear nuevo cliente (Solo Admin/Secretario)"
+          }
+        },
+        {
+          "name": "Ver Cliente Específico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/clientes/{{cliente_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Ver detalles de un cliente específico con estadísticas"
+          }
+        },
+        {
+          "name": "Actualizar Cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Cliente Actualizado\",\n    \"email\": \"cliente_actualizado@example.com\",\n    \"telefono\": \"0999888666\",\n    \"direccion\": \"Nueva Dirección 456\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/clientes/{{cliente_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Actualizar información del cliente"
+          }
+        },
+        {
+          "name": "Eliminar Cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/clientes/{{cliente_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Eliminar cliente (Solo Administrador)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Productos (Admin/Bodega)",
+      "item": [
+        {
+          "name": "Listar Productos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/productos?per_page=15&sort_by=nombre&sort_order=asc",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "nombre",
+                  "description": "nombre, precio, stock, created_at"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "asc",
+                  "description": "asc, desc"
+                },
+                {
+                  "key": "categoria_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "buscar",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "stock_bajo",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "Productos con stock <= 10"
+                }
+              ]
+            },
+            "description": "✅ NUEVO - Listar productos con filtros avanzados y paginación"
+          }
+        },
+        {
+          "name": "Crear Producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Producto API Test\",\n    \"descripcion\": \"Producto creado via API para testing\",\n    \"precio\": 25.99,\n    \"stock\": 100,\n    \"categoria_id\": 1\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/productos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            },
+            "description": "✅ NUEVO - Crear nuevo producto (Solo Admin/Bodega)"
+          }
+        },
+        {
+          "name": "Ver Producto Específico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/productos/{{producto_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Ver detalles del producto con estadísticas"
+          }
+        },
+        {
+          "name": "Actualizar Producto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Producto Actualizado API\",\n    \"descripcion\": \"Descripción actualizada via API\",\n    \"precio\": 29.99,\n    \"stock\": 85,\n    \"categoria_id\": 1\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/productos/{{producto_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Actualizar producto completo"
+          }
+        },
+        {
+          "name": "Actualizar Solo Stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"stock\": 150,\n    \"motivo\": \"Reabastecimiento de inventario\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/productos/{{producto_id}}/stock",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{producto_id}}",
+                "stock"
+              ]
+            },
+            "description": "✅ NUEVO - Actualizar solo el stock del producto con auditoría"
+          }
+        },
+        {
+          "name": "Eliminar Producto",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/productos/{{producto_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Eliminar producto (Solo Admin/Bodega)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧾 Facturas",
+      "item": [
+        {
+          "name": "Listar Facturas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/facturas?per_page=15&sort_by=created_at&sort_order=desc",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "facturas"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "created_at",
+                  "description": "created_at, numero_factura, total, estado"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
+                },
+                {
+                  "key": "estado",
+                  "value": "",
+                  "disabled": true,
+                  "description": "pendiente, pagada, anulada, eliminadas"
+                },
+                {
+                  "key": "cliente_id",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Solo Admin/Secretario"
+                },
+                {
+                  "key": "fecha_desde",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "fecha_hasta",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                }
+              ]
+            },
+            "description": "✅ MEJORADO - Listar facturas con filtros avanzados según el rol del usuario"
+          }
+        },
+        {
+          "name": "Crear Factura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.factura.id) {",
+                  "        pm.collectionVariables.set('factura_id', response.data.factura.id);",
+                  "        console.log('✅ Factura creada ID: ' + response.data.factura.id);",
+                  "        console.log('📄 Número: ' + response.data.factura.numero_factura);",
+                  "        console.log('💰 Total: ' + response.data.factura.total);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cliente_id\": 10,\n    \"productos\": [\n        {\n            \"id\": 1,\n            \"cantidad\": 2\n        },\n        {\n            \"id\": 2,\n            \"cantidad\": 1\n        }\n    ],\n    \"observacion\": \"Factura creada via API para testing\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/facturas",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "facturas"
+              ]
+            },
+            "description": "✅ NUEVO - Crear nueva factura con productos y cálculo automático (Solo Admin/Ventas)"
+          }
+        },
+        {
+          "name": "Ver Factura Específica",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/facturas/{{factura_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "{{factura_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Ver detalles completos de la factura con información de pagos"
+          }
+        },
+        {
+          "name": "Anular Factura",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"motivo\": \"Factura anulada por solicitud del cliente\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/facturas/{{factura_id}}/cancel",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "{{factura_id}}",
+                "cancel"
+              ]
+            },
+            "description": "✅ NUEVO - Anular factura con motivo (Solo Admin/Ventas propietario)"
+          }
+        },
+        {
+          "name": "Facturas Pendientes (Cliente)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/facturas-pendientes",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "facturas-pendientes"
+              ]
+            },
+            "description": "✅ MEJORADO - Obtener solo las facturas pendientes del cliente autenticado"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Pagos",
+      "item": [
+        {
+          "name": "Listar Pagos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos?per_page=15&sort_by=created_at&sort_order=desc",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "created_at",
+                  "description": "created_at, monto, estado, tipo_pago"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
+                },
+                {
+                  "key": "estado",
+                  "value": "",
+                  "disabled": true,
+                  "description": "pendiente, aprobado, rechazado"
+                },
+                {
+                  "key": "tipo_pago",
+                  "value": "",
+                  "disabled": true,
+                  "description": "efectivo, transferencia, tarjeta, cheque"
+                },
+                {
+                  "key": "cliente_id",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Solo Admin/Secretario/Pagos"
+                },
+                {
+                  "key": "fecha_desde",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "fecha_hasta",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                }
+              ]
+            },
+            "description": "✅ NUEVO - Listar pagos con filtros avanzados según el rol del usuario"
+          }
+        },
+        {
+          "name": "Registrar Pago - Efectivo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.pago.id) {",
+                  "        pm.collectionVariables.set('pago_id', response.data.pago.id);",
+                  "        console.log('✅ Pago registrado ID: ' + response.data.pago.id);",
+                  "        console.log('💳 Tipo: ' + response.data.pago.tipo_pago);",
+                  "        console.log('💰 Monto: ' + response.data.pago.monto);",
+                  "        console.log('📄 Factura: ' + response.data.pago.factura_numero);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": {{factura_id}},\n    \"tipo_pago\": \"efectivo\",\n    \"monto\": 150.75,\n    \"numero_transaccion\": \"EFEC-{{$timestamp}}\",\n    \"observacion\": \"Pago en efectivo realizado en oficina principal\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ MEJORADO - Registrar nuevo pago en efectivo (Solo Clientes)"
+          }
+        },
+        {
+          "name": "Registrar Pago - Transferencia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": {{factura_id}},\n    \"tipo_pago\": \"transferencia\",\n    \"monto\": 150.75,\n    \"numero_transaccion\": \"TRANS-BP-{{$timestamp}}\",\n    \"observacion\": \"Transferencia bancaria Banco Pichincha - Cuenta ****1234\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ MEJORADO - Registrar nuevo pago por transferencia bancaria"
+          }
+        },
+        {
+          "name": "Registrar Pago - Tarjeta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": {{factura_id}},\n    \"tipo_pago\": \"tarjeta\",\n    \"monto\": 150.75,\n    \"numero_transaccion\": \"CARD-{{$timestamp}}\",\n    \"observacion\": \"Pago con tarjeta de crédito Visa terminada en 4567\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ MEJORADO - Registrar nuevo pago con tarjeta"
+          }
+        },
+        {
+          "name": "Registrar Pago - Cheque",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": {{factura_id}},\n    \"tipo_pago\": \"cheque\",\n    \"monto\": 150.75,\n    \"numero_transaccion\": \"CHQ-{{$timestamp}}\",\n    \"observacion\": \"Cheque del Banco del Pacífico No. 001234567\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ MEJORADO - Registrar nuevo pago con cheque"
+          }
+        },
+        {
+          "name": "Ver Pago Específico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos/{{pago_id}}",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos",
+                "{{pago_id}}"
+              ]
+            },
+            "description": "✅ NUEVO - Ver detalles completos del pago con información de factura"
+          }
+        },
+        {
+          "name": "Aprobar Pago (Admin/Pagos)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"observacion\": \"Pago verificado y aprobado - Documentos en orden\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos/{{pago_id}}/approve",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos",
+                "{{pago_id}}",
+                "approve"
+              ]
+            },
+            "description": "✅ NUEVO - Aprobar pago pendiente (Solo Admin/Pagos)"
+          }
+        },
+        {
+          "name": "Rechazar Pago (Admin/Pagos)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"motivo\": \"Número de transacción inválido - Solicitar comprobante correcto\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos/{{pago_id}}/reject",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos",
+                "{{pago_id}}",
+                "reject"
+              ]
+            },
+            "description": "✅ NUEVO - Rechazar pago pendiente con motivo (Solo Admin/Pagos)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 Tests de Validación",
+      "item": [
+        {
+          "name": "Error - Pago sin Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": 1,\n    \"tipo_pago\": \"efectivo\",\n    \"monto\": 100.00\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ Test de error 401 - Sin autenticación (debería devolver Unauthenticated)"
+          }
+        },
+        {
+          "name": "Error - Tipo Pago Inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": {{factura_id}},\n    \"tipo_pago\": \"bitcoin\",\n    \"monto\": 150.75,\n    \"numero_transaccion\": \"BTC-123\",\n    \"observacion\": \"Test de tipo de pago inválido\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ Test de error - Tipo de pago no válido (debería dar error de validación)"
+          }
+        },
+        {
+          "name": "Error - Factura Inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"factura_id\": 99999,\n    \"tipo_pago\": \"efectivo\",\n    \"monto\": 100.00,\n    \"numero_transaccion\": \"GHOST-INVOICE\",\n    \"observacion\": \"Test de factura inexistente\"\n}"
+            },
+            "url": {
+              "raw": "http://{{Ip_puerto}}/api/pagos",
+              "protocol": "http",
+              "host": [
+                "{{Ip_puerto}}"
+              ],
+              "path": [
+                "api",
+                "pagos"
+              ]
+            },
+            "description": "✅ Test de error - Factura no existe (debería dar 404 o error de validación)"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script global pre-request",
+          "pm.globals.set('timestamp', Math.floor(Date.now() / 1000));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script global post-response",
+          "pm.test('Status code is not 500', function () {",
+          "    pm.expect(pm.response.code).to.not.equal(500);",
+          "});",
+          "",
+          "if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "    pm.test('Response has valid JSON', function () {",
+          "        pm.expect(function() { pm.response.json(); }).to.not.throw();",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

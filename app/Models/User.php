@@ -9,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Models\Role as SpatieRole;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
+use App\Traits\HasObfuscatedId;
 
 /**
  * @property int $id
@@ -74,7 +75,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes, HasRoles;
-    use HasApiTokens;
+    use HasApiTokens, HasObfuscatedId;
 
     /**
      * The attributes that are mass assignable.
@@ -103,6 +104,12 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at',
+        'pending_delete_at',
+        'motivo_suspension',
+        'created_by',
+        'updated_by',
+        'deleted_at',
     ];
 
     /**

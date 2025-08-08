@@ -7,13 +7,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Categoria;
 use App\Models\FacturaDetalle;
 use App\Models\User;
+use App\Traits\HasObfuscatedId;
 
 class Producto extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasObfuscatedId;
 
     protected $fillable = [
         'nombre', 'descripcion', 'imagen', 'categoria_id', 'stock', 'precio', 'created_by', 'updated_by'
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'created_by',
+        'updated_by',
+        'deleted_at',
     ];
 
     public function categoria()

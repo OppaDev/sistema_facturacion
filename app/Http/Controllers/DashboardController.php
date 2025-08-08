@@ -8,6 +8,7 @@ use App\Models\Categoria;
 use App\Models\FacturaDetalle;
 use App\Models\Auditoria;
 use App\Models\User;
+use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -68,7 +69,7 @@ class DashboardController extends Controller
                                        ->limit(5)
                                        ->get();
             $productosSinStock = \App\Models\Producto::where('stock', 0)->count();
-            $facturasPendientes = \App\Models\Factura::where('estado', 'activa')->count();
+            $facturasPendientes = \App\Models\Factura::where('estado', 'pendiente')->count();
             $tasaConversion = $clientesActivos > 0 ? round(($facturasMes / $clientesActivos) * 100, 1) : 0;
             $top3Productos = $topProductos->take(3);
             $movimientosRecientes = \App\Models\FacturaDetalle::with(['producto', 'factura'])
@@ -151,6 +152,49 @@ class DashboardController extends Controller
                                ->sum('total');
             $ticketPromedio = $facturasMes > 0 ? $ventasMes / $facturasMes : 0;
             return view('dashboard_ventas', compact('facturasMes', 'ventasMes', 'ticketPromedio'));
+        }
+
+        // PAGOS
+        if ($user->hasRole('Pagos')) {
+            $pagosPendientes = \App\Models\Pago::where('estado', 'pendiente')->count();
+            $pagosAprobados = \App\Models\Pago::where('estado', 'aprobado')->count();
+            $pagosRechazados = \App\Models\Pago::where('estado', 'rechazado')->count();
+            $totalPagosMes = \App\Models\Pago::whereMonth('created_at', now()->month)
+                                   ->whereYear('created_at', now()->year)
+                                   ->count();
+            
+            $montoTotalAprobado = \App\Models\Pago::where('estado', 'aprobado')->sum('monto');
+            $montoMesAprobado = \App\Models\Pago::where('estado', 'aprobado')
+                                      ->whereMonth('created_at', now()->month)
+                                      ->whereYear('created_at', now()->year)
+                                      ->sum('monto');
+            
+            $pagosRecientes = \App\Models\Pago::with(['factura.cliente', 'pagadoPor'])
+                                     ->orderBy('created_at', 'desc')
+                                     ->limit(10)
+                                     ->get();
+            
+            $tiempoPromedioValidacion = \App\Models\Pago::whereNotNull('validated_at')
+                                              ->selectRaw('AVG(EXTRACT(EPOCH FROM (validated_at - created_at))/3600) as promedio_horas')
+                                              ->value('promedio_horas');
+            $tiempoPromedioValidacion = round($tiempoPromedioValidacion ?? 0, 1);
+            
+            // Estadísticas por tipo de pago
+            $pagosPorTipo = \App\Models\Pago::selectRaw('tipo_pago, COUNT(*) as total, SUM(monto) as monto_total')
+                                  ->groupBy('tipo_pago')
+                                  ->get();
+            
+            return view('dashboard_pagos', compact(
+                'pagosPendientes',
+                'pagosAprobados', 
+                'pagosRechazados',
+                'totalPagosMes',
+                'montoTotalAprobado',
+                'montoMesAprobado',
+                'pagosRecientes',
+                'tiempoPromedioValidacion',
+                'pagosPorTipo'
+            ));
         }
 
         // Si no tiene rol válido
