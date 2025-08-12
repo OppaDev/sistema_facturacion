@@ -22,7 +22,7 @@ class UpdateClienteRequest extends FormRequest
      */
     public function rules(): array
     {
-        $clienteId = $this->route('cliente')?->id ?? null;
+        $clienteId = $this->route('cliente')->id ?? null;
 
         return [
             'name' => [
@@ -106,23 +106,23 @@ class UpdateClienteRequest extends FormRequest
     protected function prepareForValidation()
     {
         $data = [];
-        
+
         if ($this->has('name')) {
             $data['name'] = $this->sanitizeString($this->name);
         }
-        
+
         if ($this->has('email')) {
             $data['email'] = $this->sanitizeEmail($this->email);
         }
-        
+
         if ($this->has('telefono')) {
             $data['telefono'] = $this->sanitizePhone($this->telefono);
         }
-        
+
         if ($this->has('direccion')) {
             $data['direccion'] = $this->sanitizeString($this->direccion);
         }
-        
+
         $this->merge($data);
     }
 

@@ -126,12 +126,12 @@ class SecurityValidator
     private function isValidHost(string $host): bool
     {
         // Lista de hosts permitidos (configurable desde .env)
-        $allowedHosts = explode(',', env('ALLOWED_HOSTS', 'localhost,127.0.0.1'));
-        
+        $allowedHosts = config('security.allowed_hosts', ['localhost', '127.0.0.1']);
+
         // Remover puerto si existe
         $hostWithoutPort = explode(':', $host)[0];
-        
-        return in_array($hostWithoutPort, $allowedHosts) || 
+
+        return in_array($hostWithoutPort, $allowedHosts) ||
                in_array($host, $allowedHosts);
     }
 
@@ -141,7 +141,7 @@ class SecurityValidator
     private function hasSuspiciousUserAgent(Request $request): bool
     {
         $userAgent = strtolower($request->userAgent() ?? '');
-        
+
         foreach (self::SUSPICIOUS_USER_AGENTS as $suspicious) {
             if (str_contains($userAgent, $suspicious)) {
                 return true;
@@ -162,8 +162,8 @@ class SecurityValidator
     private function isRequestTooLarge(Request $request): bool
     {
         // Límite máximo en bytes (configurable)
-        $maxSize = (int) env('API_MAX_REQUEST_SIZE', 1048576); // 1MB por defecto
-        
+        $maxSize = config('security.api_max_request_size', 1048576); // 1MB por defecto
+
         $content = $request->getContent();
         return strlen($content) > $maxSize;
     }
@@ -184,7 +184,7 @@ class SecurityValidator
         }
 
         // Verificar body parameters (solo para ciertos métodos)
-        if ($request->isMethod(['POST', 'PUT', 'PATCH'])) {
+        if (in_array($request->method(), ['POST', 'PUT', 'PATCH'])) {
             $input = $request->all();
             if ($this->hasInjectionInArray($input)) {
                 return true;
@@ -203,16 +203,16 @@ class SecurityValidator
             if (is_string($key) && $this->detectInjectionAttempt($key)) {
                 return true;
             }
-            
+
             if (is_string($value) && $this->detectInjectionAttempt($value)) {
                 return true;
             }
-            
+
             if (is_array($value) && $this->hasInjectionInArray($value)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -223,19 +223,19 @@ class SecurityValidator
     {
         $ip = $request->ip();
         $cacheKey = "security_rate_limit:{$ip}";
-        
+
         // Límite: 300 requests por minuto por IP
-        $limit = (int) env('SECURITY_RATE_LIMIT', 300);
-        $decay = 60; // segundos
-        
+        $limit = config('security.rate_limit', 300);
+        $decay = config('security.rate_limit_decay', 60); // segundos
+
         $current = cache($cacheKey, 0);
-        
+
         if ($current >= $limit) {
             return true;
         }
-        
+
         cache()->put($cacheKey, $current + 1, $decay);
-        
+
         return false;
     }
 
@@ -270,18 +270,18 @@ class SecurityValidator
         $cacheKey = "security_violations:{$ip}";
         $violations = cache($cacheKey, 0);
         $violations++;
-        
+
         // Bloquear IP tras 10 violaciones en 1 hora
         if ($violations >= 10) {
             cache()->put("blocked_ip:{$ip}", true, 3600); // 1 hora de bloqueo
-            
+
             \Log::critical('IP address blocked due to multiple security violations', [
                 'ip' => $ip,
                 'violations_count' => $violations,
                 'blocked_until' => now()->addHour()->toISOString(),
             ]);
         }
-        
+
         cache()->put($cacheKey, $violations, 3600);
     }
 }
