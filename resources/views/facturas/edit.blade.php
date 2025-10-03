@@ -154,10 +154,6 @@
                                                 <span>{{ $factura->tipo_emision ?? 'NORMAL' }}</span>
                                             </div>
                                             <div class="info-item d-flex justify-content-between mb-2">
-                                                <span class="text-muted">Forma de Pago:</span>
-                                                <span>@php $pagoAprobado = $factura->pagos()->where('estado', 'aprobado')->first(); @endphp{{ $pagoAprobado ? ucfirst($pagoAprobado->tipo_pago) : 'Pendiente de pago' }}</span>
-                                            </div>
-                                            <div class="info-item d-flex justify-content-between mb-2">
                                                 <span class="text-muted">Tipo Documento:</span>
                                                 <span>{{ $factura->tipo_documento ?? 'FACTURA' }}</span>
                                             </div>
@@ -438,7 +434,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('facturas.send-email', $factura) }}" method="POST">
+            <form action="{{ route('facturas.sendEmail', $factura) }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">

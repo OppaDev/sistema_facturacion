@@ -87,7 +87,21 @@ class FacturasController extends Controller
         }
         
         if ($request->filled('estado')) {
-            $facturas = $facturas->where('estado', $request->input('estado'));
+            $estado = $request->input('estado');
+            if ($estado === 'anulada') {
+                // Mostrar solo facturas anuladas (soft deleted)
+                $facturas = $facturas->onlyTrashed();
+            } elseif ($estado === 'pendiente') {
+                // Facturas pendientes de firma
+                $facturas = $facturas->where('estado_firma', 'PENDIENTE');
+            } elseif ($estado === 'firmada') {
+                // Facturas firmadas pero no emitidas
+                $facturas = $facturas->where('estado_firma', 'FIRMADA')
+                                     ->where('estado_emision', 'PENDIENTE');
+            } elseif ($estado === 'emitida') {
+                // Facturas emitidas
+                $facturas = $facturas->where('estado_emision', 'EMITIDA');
+            }
         }
         
         if ($request->filled('cliente_id')) {
@@ -161,7 +175,6 @@ class FacturasController extends Controller
                 'subtotal' => $subtotal,
                 'iva' => $iva,
                 'total' => $total,
-                'estado' => 'pendiente',
                 'created_by' => $data['created_by'],
                 'estado_firma' => 'PENDIENTE',
                 'estado_emision' => 'PENDIENTE',
@@ -463,7 +476,6 @@ class FacturasController extends Controller
                     'productos' => $productos,
                     'total' => $total,
                     'created_at' => now(),
-                    'estado' => 'pendiente',
                 ],
                 'esPreview' => true
             ]);

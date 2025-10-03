@@ -2,7 +2,7 @@
 
 ## 🚀 Sistema Completo de Gestión de Inventario y Facturación
 
-Sistema profesional de inventario con módulos de Clientes, Productos, Facturación, Auditoría, gestión de roles y usuarios. Incluye funcionalidades avanzadas como generación de PDF, envío de emails, control de stock, soft deletes, auditoría completa, gestión de estados de usuario y seguridad en tiempo real.
+Sistema profesional de inventario con módulos de Clientes, Productos, Facturación, Auditoría, gestión de roles y usuarios. Incluye funcionalidades avanzadas como generación de PDF, envío de emails, control de stock, soft deletes, auditoría completa y gestión de estados de usuario.
 
 ## ✨ Características Principales
 
@@ -151,17 +151,16 @@ $fechaEliminacion = \Carbon\Carbon::parse($user->pending_delete_at)->addDays(7);
 
 ## 🛠️ Instalación y Configuración
 
-### 1. Crear el proyecto Laravel
+### 1. Clonar el repositorio
 ```bash
-composer create-project laravel/laravel nombre-proyecto
-cd nombre-proyecto
+git clone [URL_DEL_REPOSITORIO]
+cd sistema_facturacion
 ```
 
 ### 2. Instalar dependencias principales
 ```bash
-composer require spatie/laravel-permission
-composer require barryvdh/laravel-dompdf
-composer require laravel/breeze --dev
+composer install
+npm install
 ```
 
 ### 3. Publicar archivos de configuración

@@ -45,6 +45,16 @@
         </li>
         @endhasanyrole
 
+        <!-- Categorías: solo Administrador y Bodega -->
+        @hasanyrole('Administrador|Bodega')
+        <li class="nav-item">
+            <a href="{{ route('categorias.index') }}" class="nav-link {{ request()->is('categorias*') ? 'active' : '' }}">
+                <i class="nav-icon bi bi-tags"></i>
+                <p>Categorías</p>
+            </a>
+        </li>
+        @endhasanyrole
+
         <!-- Facturación: solo Administrador y Ventas -->
         @hasanyrole('Administrador|Ventas')
         <li class="nav-item">
@@ -87,21 +97,8 @@
 
         <!-- Gestión de Pagos: Administrador y rol Pagos -->
         @hasanyrole('Administrador|Pagos')
-        <li class="nav-item">
-            <a href="{{ route('pagos.index') }}" class="nav-link {{ request()->is('pagos*') ? 'active' : '' }}">
-                <i class="nav-icon bi bi-credit-card"></i>
-                <p>
-                    Gestión de Pagos
-                    @php
-                        $pagosPendientes = \App\Models\Pago::where('estado', 'pendiente')->count();
-                    @endphp
-                    @if($pagosPendientes > 0)
-                        <span class="badge badge-warning right">{{ $pagosPendientes }}</span>
-                    @endif
-                </p>
-            </a>
-        </li>
         @endhasanyrole
+        {{-- Módulo de Pagos eliminado en v3.2.0 --}}
     </ul>
   </div>
   <!-- /.sidebar -->

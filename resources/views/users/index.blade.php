@@ -6,8 +6,14 @@
 <div class="container-xxl flex-grow-1 container-p-y">
   <!-- Header -->
   <div class="row">
-    <div class="col-12">
-      <div class="page-title d-flex flex-column justify-content-center flex-sm-row my-0">
+    <div class="col-12                            </td>
+                            <td class="text-end">
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
+                              data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">  <div class="page-title d-flex flex-column justify-content-center flex-sm-row my-0">
         <div class="page-title-content">
           <h4 class="mb-1">
             <span class="text-muted fw-light">Sistema /</span> Usuarios
@@ -201,11 +207,12 @@
                     </div>
                   </td>
                             <td class="text-end">
-                    <div class="dropdown" data-bs-display="static" data-bs-container="body">
-                      <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bx bx-cog"></i>
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
+                              data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-dots-vertical-rounded"></i>
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                           <a class="dropdown-item" href="{{ route('users.show', $user) }}">
                             <i class="bx bx-show me-2"></i> Ver Detalles

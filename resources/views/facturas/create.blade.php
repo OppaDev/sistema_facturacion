@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnDescargar.disabled = true;
         
         // Enviar solicitud
-        fetch('{{ route("facturas.preview-pdf") }}', {
+        fetch('{{ route("facturas.previewPdf") }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

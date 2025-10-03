@@ -189,11 +189,12 @@
                     </div>
                   </td>
                   <td class="text-end">
-                    <div class="dropdown" data-bs-display="static" data-bs-container="body">
-                      <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bx bx-cog"></i>
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
+                              data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-dots-vertical-rounded"></i>
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                           <button class="dropdown-item" type="button" 
                                   data-bs-toggle="modal" data-bs-target="#modalInfoRol{{ $role->id }}">

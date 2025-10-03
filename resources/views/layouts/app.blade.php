@@ -123,6 +123,16 @@
             </li>
             @endrole
 
+            <!-- Categorías -->
+            @role('Administrador|Bodega')
+            <li class="menu-item {{ request()->routeIs('categorias.*') ? 'active' : '' }}">
+              <a href="{{ route('categorias.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-purchase-tag"></i>
+                <div class="text-truncate" data-i18n="Categorías">Categorías</div>
+              </a>
+            </li>
+            @endrole
+
             <!-- Facturas -->
             @role('Administrador|Ventas')
             <li class="menu-item {{ request()->routeIs('facturas.*') ? 'active' : '' }}">
@@ -143,40 +153,12 @@
             </li>
             @endrole
 
-            <!-- Pagos -->
-            @hasanyrole('Administrador|Pagos')
-            <li class="menu-item {{ request()->routeIs('pagos.*') ? 'active' : '' }}">
-              <a href="{{ route('pagos.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-credit-card"></i>
-                <div class="text-truncate" data-i18n="Pagos">
-                  Pagos
-                  @php
-                    $pagosPendientes = \App\Models\Pago::where('estado', 'pendiente')->count();
-                  @endphp
-                  @if($pagosPendientes > 0)
-                    <span class="badge bg-warning ms-2">{{ $pagosPendientes }}</span>
-                  @endif
-                </div>
-              </a>
-            </li>
-            @endhasanyrole
-
             <!-- Usuarios -->
             @role('Administrador|Secretario')
             <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
               <a href="{{ route('users.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-group"></i>
                 <div class="text-truncate" data-i18n="Usuarios">Usuarios</div>
-              </a>
-            </li>
-            @endrole
-
-            <!-- Tokens API -->
-            @role('Administrador')
-            <li class="menu-item {{ request()->routeIs('tokens.*') ? 'active' : '' }}">
-              <a href="{{ route('tokens.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-key"></i>
-                <div class="text-truncate" data-i18n="Tokens">Tokens API</div>
               </a>
             </li>
             @endrole
@@ -205,14 +187,16 @@
             </div>
 
             <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
-              <!-- Search -->
+              <!-- Sistema Info -->
               <div class="navbar-nav align-items-center me-auto">
                 <div class="nav-item d-flex align-items-center">
-                  <span class="w-px-22 h-px-22"><i class="icon-base bx bx-search icon-md"></i></span>
-                  <input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2 d-md-block d-none" placeholder="Buscar..." aria-label="Buscar..." />
+                  <span class="text-muted d-none d-md-block">
+                    <i class="bx bx-calendar me-1"></i>
+                    <span id="current-date"></span>
+                  </span>
                 </div>
               </div>
-              <!-- /Search -->
+              <!-- /Sistema Info -->
 
               <ul class="navbar-nav flex-row align-items-center ms-md-auto">
                 <!-- User -->
@@ -365,6 +349,29 @@
 
     <!-- Application Scripts -->
     @vite(['resources/js/app.js'])
+
+    <!-- Fecha actual -->
+    <script>
+      function updateDate() {
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+          const now = new Date();
+          const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          };
+          dateElement.textContent = now.toLocaleDateString('es-ES', options);
+        }
+      }
+      
+      // Actualizar fecha al cargar
+      document.addEventListener('DOMContentLoaded', updateDate);
+      
+      // Actualizar fecha cada minuto
+      setInterval(updateDate, 60000);
+    </script>
 
     @stack('scripts')
 </body>

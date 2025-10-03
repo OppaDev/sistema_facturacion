@@ -273,26 +273,27 @@
                     @endif
                   </td>
                   <td class="text-end">
-                    <div class="dropdown" data-bs-display="static" data-bs-container="body">
-                      <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-gear"></i>
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
+                              data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-dots-vertical-rounded"></i>
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                           <a class="dropdown-item" href="{{ route('productos.show', $producto) }}">
-                            <i class="bi bi-eye me-2"></i> Ver Detalles
+                            <i class="bx bx-show me-2"></i> Ver Detalles
                           </a>
                         </li>
                         @if(!$producto->deleted_at)
                           <li>
                             <a class="dropdown-item" href="{{ route('productos.edit', $producto) }}">
-                              <i class="bi bi-pencil me-2"></i> Editar
+                              <i class="bx bx-edit me-2"></i> Editar
                             </a>
                           </li>
                           <li><hr class="dropdown-divider"></li>
                           <li>
                             <button class="dropdown-item text-danger" type="button" data-bs-toggle="modal" data-bs-target="#modalEliminarProducto{{ $producto->id }}">
-                              <i class="bi bi-trash me-2"></i> Eliminar
+                              <i class="bx bx-trash me-2"></i> Eliminar
                             </button>
                           </li>
                         @else
@@ -398,24 +399,25 @@
                     </span>
                   </td>
                   <td class="text-end">
-                    <div class="dropdown" data-bs-display="static" data-bs-container="body">
-                      <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-gear"></i>
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
+                              data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-dots-vertical-rounded"></i>
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                           <a class="dropdown-item" href="{{ route('productos.show', $producto) }}">
-                            <i class="bi bi-eye me-2"></i> Ver Detalles
+                            <i class="bx bx-show me-2"></i> Ver Detalles
                           </a>
                         </li>
                         <li>
                           <button class="dropdown-item text-success" type="button" data-bs-toggle="modal" data-bs-target="#modalRestaurarProducto{{ $producto->id }}">
-                            <i class="bi bi-arrow-clockwise me-2"></i> Restaurar
+                            <i class="bx bx-revision me-2"></i> Restaurar
                           </button>
                         </li>
                         <li>
-                          <button class="dropdown-item text-dark" type="button" data-bs-toggle="modal" data-bs-target="#modalBorrarDefinitivoProducto{{ $producto->id }}">
-                            <i class="bi bi-x-circle me-2"></i> Eliminar Definitivamente
+                          <button class="dropdown-item text-danger" type="button" data-bs-toggle="modal" data-bs-target="#modalBorrarDefinitivoProducto{{ $producto->id }}">
+                            <i class="bx bx-trash me-2"></i> Eliminar Definitivamente
                           </button>
                         </li>
                       </ul>

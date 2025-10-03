@@ -98,22 +98,17 @@
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-4 col-sm-6">
               <a href="{{ route('users.index') }}" class="btn btn-outline-primary d-flex align-items-center gap-2 w-100">
                 <i class="bx bx-user"></i> Gestionar Usuarios
               </a>
             </div>
-            <div class="col-md-3 col-sm-6">
-              <a href="{{ route('tokens.index') }}" class="btn btn-outline-info d-flex align-items-center gap-2 w-100">
-                <i class="bx bx-key"></i> Tokens API
-              </a>
-            </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-4 col-sm-6">
               <a href="{{ route('auditorias.index') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 w-100">
                 <i class="bx bx-history"></i> Auditoría
               </a>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-4 col-sm-6">
               <a href="{{ route('roles.index') }}" class="btn btn-outline-warning d-flex align-items-center gap-2 w-100">
                 <i class="bx bx-shield"></i> Roles
               </a>

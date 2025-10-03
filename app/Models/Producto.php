@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Categoria;
 use App\Models\FacturaDetalle;
 use App\Models\User;
-use App\Traits\HasObfuscatedId;
 
 class Producto extends Model
 {
-    use SoftDeletes, HasObfuscatedId;
+    use SoftDeletes;
 
     protected $fillable = [
         'nombre', 'descripcion', 'imagen', 'categoria_id', 'stock', 'precio', 'created_by', 'updated_by'

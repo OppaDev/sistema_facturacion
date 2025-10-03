@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\FacturaSRIService;
 use App\Models\FacturaDetalle;
 use App\Models\User;
-use App\Traits\HasObfuscatedId;
 
 class Factura extends Model
 {
-    use SoftDeletes, HasObfuscatedId;
+    use SoftDeletes;
 
     protected $fillable = [
         'cliente_id',
@@ -20,7 +19,6 @@ class Factura extends Model
         'subtotal',
         'iva',
         'total',
-        'estado',
         'motivo_anulacion',
         'created_by',
         'updated_by',
@@ -104,41 +102,20 @@ class Factura extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
-    public function pagos()
-    {
-        return $this->hasMany(Pago::class);
-    }
-
     /**
      * Verificar si la factura está anulada
      */
     public function isAnulada()
     {
-        return $this->estado === 'anulada';
+        return $this->trashed();
     }
 
     /**
-     * Verificar si la factura está pendiente
-     */
-    public function isPendiente()
-    {
-        return $this->estado === 'pendiente';
-    }
-
-    /**
-     * Verificar si la factura está pagada
-     */
-    public function isPagada()
-    {
-        return $this->estado === 'pagada';
-    }
-
-    /**
-     * Verificar si la factura está activa (pendiente o pagada)
+     * Verificar si la factura está activa (no anulada)
      */
     public function isActiva()
     {
-        return in_array($this->estado, ['pendiente', 'pagada']);
+        return !$this->trashed();
     }
 
     /**
@@ -317,7 +294,7 @@ class Factura extends Model
      */
     public function getEstadoVisual()
     {
-        if ($this->isAnulada()) {
+        if ($this->trashed()) {
             return ['texto' => 'ANULADA', 'clase' => 'danger', 'icono' => 'fas fa-ban'];
         }
         

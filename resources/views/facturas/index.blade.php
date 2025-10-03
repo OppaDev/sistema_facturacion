@@ -147,8 +147,10 @@
                                             <label class="form-label">Estado</label>
                     <select name="estado" class="form-select">
                         <option value="">Todos</option>
-                        <option value="activa" {{ request('estado') == 'activa' ? 'selected' : '' }}>Activas</option>
-                        <option value="anulada" {{ request('estado') == 'anulada' ? 'selected' : '' }}>Anuladas</option>
+                        <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente Firma</option>
+                        <option value="firmada" {{ request('estado') == 'firmada' ? 'selected' : '' }}>Firmada</option>
+                        <option value="emitida" {{ request('estado') == 'emitida' ? 'selected' : '' }}>Emitida</option>
+                        <option value="anulada" {{ request('estado') == 'anulada' ? 'selected' : '' }}>Anulada</option>
                     </select>
                 </div>
                 <div class="col-md-2 col-6">
@@ -243,13 +245,13 @@
                     <div class="text-muted small">{{ $factura->detalles->count() }} productos</div>
                             </td>
                             <td>
-                                @if($factura->estado === 'activa')
-                      <span class="badge bg-label-success">Activa</span>
-                                @elseif($factura->estado === 'anulada')
-                      <span class="badge bg-label-danger">Anulada</span>
-                                @else
-                      <span class="badge bg-label-secondary">{{ ucfirst($factura->estado) }}</span>
-                                @endif
+                                @php
+                                    $estadoVisual = $factura->getEstadoVisual();
+                                @endphp
+                                <span class="badge bg-{{ $estadoVisual['clase'] }}">
+                                    <i class="{{ $estadoVisual['icono'] }} me-1"></i>
+                                    {{ $estadoVisual['texto'] }}
+                                </span>
                             </td>
                             <td>
                                                         <div>
@@ -271,11 +273,12 @@
                                 </div>
                             </td>
                   <td class="text-end">
-                    <div class="dropdown" data-bs-display="static" data-bs-container="body">
-                      <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bx bx-cog"></i>
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
+                              data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-dots-vertical-rounded"></i>
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                           <a class="dropdown-item" href="{{ route('facturas.show', $factura) }}">
                             <i class="bx bx-show me-2"></i> Ver Detalles
@@ -599,7 +602,7 @@
             <h5 class="modal-title" id="modalBorrarDefinitivoFacturaLabel{{ $factura->id }}">¿Borrar Factura Definitivamente?</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-      <form method="POST" action="{{ route('facturas.force-delete', $factura->id) }}">
+      <form method="POST" action="{{ route('facturas.forceDelete', $factura->id) }}">
         @csrf
         <!-- IMPORTANTE: No usar @method('DELETE'), solo POST -->
         <div class="modal-body">

@@ -32,7 +32,6 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->decimal('iva', 10, 2);
             $table->decimal('total', 10, 2);
-            $table->enum('estado', ['pendiente', 'pagada', 'anulada'])->default('pendiente');
             $table->text('motivo_anulacion')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
