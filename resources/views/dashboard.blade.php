@@ -64,10 +64,10 @@
     <div class="col-md-3 col-6">
       <div class="card h-100 shadow-sm">
         <div class="card-body d-flex align-items-center gap-3">
-          <span class="avatar bg-label-warning rounded-circle"><i class="bx bx-file fs-2"></i></span>
+          <span class="avatar bg-label-warning rounded-circle"><i class="bx bx-receipt fs-2"></i></span>
           <div>
-            <div class="text-muted small">Facturas del mes</div>
-            <div class="fs-4 fw-bold">{{ number_format($facturasMes) }}</div>
+            <div class="text-muted small">Ventas del mes</div>
+            <div class="fs-4 fw-bold">{{ number_format($ventasMes ?? 0) }}</div>
           </div>
         </div>
       </div>
@@ -77,8 +77,8 @@
         <div class="card-body d-flex align-items-center gap-3">
           <span class="avatar bg-label-cyan rounded-circle"><i class="bx bx-dollar fs-2"></i></span>
           <div>
-            <div class="text-muted small">Ventas del mes</div>
-            <div class="fs-4 fw-bold">${{ number_format($ventasMes, 2) }}</div>
+            <div class="text-muted small">Recaudado del mes</div>
+            <div class="fs-4 fw-bold">${{ number_format($totalRecaudadoMes ?? 0, 2) }}</div>
           </div>
         </div>
       </div>
@@ -249,17 +249,26 @@
       </div>
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="bx bx-file"></i> Facturas recientes</span>
+          <span><i class="bx bx-receipt"></i> Ventas recientes</span>
           <span class="badge bg-label-info">Últimas</span>
         </div>
         <ul class="list-group list-group-flush">
-          @foreach($facturasRecientes->take(5) as $factura)
+          @forelse($ventasRecientes ?? [] as $venta)
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><i class="bx bx-receipt me-2"></i>Factura #{{ $factura->id }}</span>
-            <span class="dashboard-list-value">{{ $factura->cliente->nombre ?? 'Cliente eliminado' }} - ${{ number_format($factura->total, 2) }}</span>
-            <span class="badge bg-label-primary">${{ number_format($factura->total, 2) }}</span>
+            <span><i class="bx bx-cart me-2"></i>Venta #{{ $venta->numero_venta }}</span>
+            <span class="dashboard-list-value">
+              {{ $venta->usuario->name ?? 'N/A' }} 
+              @if($venta->cliente_nombre)
+                - {{ $venta->cliente_nombre }}
+              @endif
+            </span>
+            <span class="badge bg-label-primary">${{ number_format($venta->total, 2) }}</span>
           </li>
-          @endforeach
+          @empty
+          <li class="list-group-item text-center text-muted">
+            No hay ventas registradas
+          </li>
+          @endforelse
         </ul>
       </div>
       @if(Auth::user()->hasRole('Administrador'))

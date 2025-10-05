@@ -16,9 +16,7 @@ class AppServiceProvider extends ServiceProvider
         // Registrar comandos de testing solo en entornos de desarrollo
         if (app()->environment(['local', 'testing', 'development'])) {
             $this->commands([
-                \App\Console\Commands\Testing\CrearFacturaPrueba::class,
                 \App\Console\Commands\Testing\TestEmail::class,
-                // \App\Console\Commands\Testing\TestEmailConfig::class, // Eliminado v3.2.1 - Dependía del módulo de Pagos
                 \App\Console\Commands\Testing\TestEmailDetallado::class,
                 \App\Console\Commands\Testing\TestFirmaDigital::class,
                 \App\Console\Commands\Testing\TestMaileroo::class,

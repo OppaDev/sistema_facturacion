@@ -27,10 +27,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Factura> $facturasComoCliente
- * @property-read int|null $facturas_como_cliente_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Factura> $facturasCreadas
- * @property-read int|null $facturas_creadas_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
@@ -126,22 +122,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'deleted_at',
         'pending_delete_at',
     ];
-
-    /**
-     * Relación con las facturas donde este usuario es el cliente
-     */
-    public function facturasComoCliente()
-    {
-        return $this->hasMany(Factura::class, 'cliente_id');
-    }
-
-    /**
-     * Relación con las facturas creadas por este usuario
-     */
-    public function facturasCreadas()
-    {
-        return $this->hasMany(Factura::class, 'usuario_id');
-    }
 
     /**
      * Verificar si el usuario tiene rol de cliente

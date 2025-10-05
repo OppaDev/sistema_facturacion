@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Factura;
 use App\Services\MailerooService;
 use Illuminate\Support\Facades\Log;
 
@@ -13,24 +12,6 @@ class EmailService
     public function __construct()
     {
         $this->mailerooService = new MailerooService();
-    }
-
-    /**
-     * Enviar factura por email usando Maileroo API
-     */
-    public function enviarFactura(Factura $factura, string $email, string $asunto, string $mensaje): bool
-    {
-        try {
-            $result = $this->mailerooService->enviarFactura($factura, $email, $asunto, $mensaje);
-            return $result['success'] ?? false;
-        } catch (\Exception $e) {
-            Log::error('Error enviando factura por email', [
-                'factura_id' => $factura->id,
-                'email' => $email,
-                'error' => $e->getMessage()
-            ]);
-            return false;
-        }
     }
 
     /**

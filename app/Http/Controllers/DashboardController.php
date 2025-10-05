@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
-use App\Models\Factura;
 use App\Models\Categoria;
-use App\Models\FacturaDetalle;
 use App\Models\Auditoria;
 use App\Models\User;
+use App\Models\Venta;
+use App\Models\VentaDetalle;
+use App\Models\TurnoCaja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -19,110 +20,172 @@ class DashboardController extends Controller
         $usuarios = User::all();
         $user = auth()->user();
 
-        // ADMINISTRADOR: dashboard original
+        // ADMINISTRADOR: Dashboard refactorizado con módulo Caja/Ventas
         if ($user->hasRole('Administrador')) {
-            // --- Lógica original ---
-            $clientesActivos = User::whereHas('roles', function($q) {
-                $q->where('name', 'Cliente');
+            
+            // === MÉTRICAS PRINCIPALES ===
+            
+            // Usuarios y cajeros
+            $cajeros = User::whereHas('roles', function($q) {
+                $q->where('name', 'Ventas');
             })->where('estado', 'activo')->count();
-            $totalProductos = \App\Models\Producto::sum('stock');
-            $facturasMes = \App\Models\Factura::whereMonth('created_at', now()->month)
-                                  ->whereYear('created_at', now()->year)
-                                  ->count();
-            $ventasMes = \App\Models\Factura::whereMonth('created_at', now()->month)
-                               ->whereYear('created_at', now()->year)
-                               ->sum('total');
-            $productosBajoStock = \App\Models\Producto::where('stock', '<', 10)
+            
+            // Inventario
+            $totalProductos = Producto::sum('stock');
+            $productosSinStock = Producto::where('stock', 0)->count();
+            $productosBajoStock = Producto::where('stock', '<', 10)
                                          ->with('categoria')
                                          ->orderBy('stock', 'asc')
                                          ->limit(5)
                                          ->get();
-            $topProductos = \App\Models\FacturaDetalle::select('producto_id', \DB::raw('SUM(cantidad) as total_vendido'))
-                                         ->with('producto.categoria')
-                                         ->groupBy('producto_id')
-                                         ->orderBy('total_vendido', 'desc')
-                                         ->limit(5)
-                                         ->get();
+            
+            // === VENTAS DEL MES ===
+            $ventasMes = Venta::whereMonth('created_at', now()->month)
+                              ->whereYear('created_at', now()->year)
+                              ->where('estado', 'completada')
+                              ->count();
+            
+            $totalRecaudadoMes = Venta::whereMonth('created_at', now()->month)
+                                      ->whereYear('created_at', now()->year)
+                                      ->where('estado', 'completada')
+                                      ->sum('total');
+            
+            $ticketPromedio = $ventasMes > 0 ? round($totalRecaudadoMes / $ventasMes, 2) : 0;
+            
+            // === VENTAS DE HOY ===
+            $ventasHoy = Venta::whereDate('created_at', today())
+                              ->where('estado', 'completada')
+                              ->count();
+            
+            $recaudadoHoy = Venta::whereDate('created_at', today())
+                                 ->where('estado', 'completada')
+                                 ->sum('total');
+            
+            // === TOP PRODUCTOS VENDIDOS ===
+            $topProductos = VentaDetalle::select('producto_id', DB::raw('SUM(cantidad) as total_vendido'))
+                                        ->whereHas('venta', function($q) {
+                                            $q->whereMonth('created_at', now()->month)
+                                              ->whereYear('created_at', now()->year)
+                                              ->where('estado', 'completada');
+                                        })
+                                        ->with('producto.categoria')
+                                        ->groupBy('producto_id')
+                                        ->orderBy('total_vendido', 'desc')
+                                        ->limit(5)
+                                        ->get();
+            
+            $top3Productos = $topProductos->take(3);
+            
+            // === TURNOS DE CAJA ===
+            $turnosAbiertos = TurnoCaja::where('estado', 'abierto')->count();
+            
+            $turnosHoy = TurnoCaja::whereDate('fecha_apertura', today())->count();
+            
+            // === VENTAS RECIENTES ===
+            $ventasRecientes = Venta::with('usuario', 'turno')
+                                    ->where('estado', 'completada')
+                                    ->orderBy('created_at', 'desc')
+                                    ->limit(5)
+                                    ->get();
+            
+            // === GRÁFICA: VENTAS POR DÍA (mes actual vs mes anterior) ===
             $dias = range(1, now()->daysInMonth);
             $ventasEsteMes = [];
             $ventasMesPasado = [];
-            $mesActual = now()->month;
-            $anioActual = now()->year;
-            $mesPasado = now()->subMonth()->month;
-            $anioPasado = now()->subMonth()->year;
+            
             foreach ($dias as $dia) {
-                $ventasEsteMes[] = \App\Models\Factura::whereDay('created_at', $dia)
-                    ->whereMonth('created_at', $mesActual)
-                    ->whereYear('created_at', $anioActual)
+                // Este mes
+                $ventasEsteMes[] = Venta::whereDay('created_at', $dia)
+                    ->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->where('estado', 'completada')
                     ->sum('total');
-                $ventasMesPasado[] = \App\Models\Factura::whereDay('created_at', $dia)
-                    ->whereMonth('created_at', $mesPasado)
-                    ->whereYear('created_at', $anioPasado)
+                
+                // Mes pasado
+                $ventasMesPasado[] = Venta::whereDay('created_at', $dia)
+                    ->whereMonth('created_at', now()->subMonth()->month)
+                    ->whereYear('created_at', now()->subMonth()->year)
+                    ->where('estado', 'completada')
                     ->sum('total');
             }
-            $productosPorCategoria = \App\Models\Categoria::withCount('productos')
-                                             ->withSum('productos', 'stock')
-                                             ->get();
-            $facturasRecientes = \App\Models\Factura::with('cliente')
-                                       ->orderBy('created_at', 'desc')
-                                       ->limit(5)
-                                       ->get();
-            $productosSinStock = \App\Models\Producto::where('stock', 0)->count();
-            $facturasPendientes = \App\Models\Factura::where('estado_firma', 'PENDIENTE')->count();
-            $tasaConversion = $clientesActivos > 0 ? round(($facturasMes / $clientesActivos) * 100, 1) : 0;
-            $top3Productos = $topProductos->take(3);
-            $movimientosRecientes = \App\Models\FacturaDetalle::with(['producto', 'factura'])
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get();
+            
+            // === PRODUCTOS POR CATEGORÍA ===
+            $productosPorCategoria = Categoria::withCount('productos')
+                                              ->withSum('productos', 'stock')
+                                              ->get();
+            
+            // === MOVIMIENTOS DE INVENTARIO (salidas por ventas) ===
+            $movimientosRecientes = VentaDetalle::with(['producto', 'venta.usuario'])
+                                                ->whereHas('venta', function($q) {
+                                                    $q->where('estado', 'completada');
+                                                })
+                                                ->orderBy('created_at', 'desc')
+                                                ->limit(5)
+                                                ->get();
+            
+            // === SALIDAS DE PRODUCTOS POR DÍA ===
             $entradasSalidasDias = [];
             foreach ($dias as $dia) {
-                $salidas = \App\Models\FacturaDetalle::whereDay('created_at', $dia)
-                    ->whereMonth('created_at', $mesActual)
-                    ->whereYear('created_at', $anioActual)
-                    ->sum('cantidad');
-                $entradas = 0;
+                $salidas = VentaDetalle::whereHas('venta', function($q) use ($dia) {
+                    $q->whereDay('created_at', $dia)
+                      ->whereMonth('created_at', now()->month)
+                      ->whereYear('created_at', now()->year)
+                      ->where('estado', 'completada');
+                })->sum('cantidad');
+                
                 $entradasSalidasDias[] = [
                     'dia' => $dia,
-                    'entradas' => $entradas,
+                    'entradas' => 0, // No hay entradas automáticas en sistema POS
                     'salidas' => $salidas,
                 ];
             }
-            $ultimosClientes = User::whereHas('roles', function($q) {
-                $q->where('name', 'Cliente');
-            })->orderBy('created_at', 'desc')->limit(5)->get();
-            $logsAuditoria = \App\Models\Auditoria::with('user')->orderBy('created_at', 'desc')->limit(5)->get();
-            return view('dashboard', compact('usuarios',
-                'clientesActivos',
+            
+            // === TOP CAJEROS DEL MES ===
+            $topCajeros = Venta::select('usuario_id', DB::raw('COUNT(*) as total_ventas'), DB::raw('SUM(total) as total_recaudado'))
+                               ->whereMonth('created_at', now()->month)
+                               ->whereYear('created_at', now()->year)
+                               ->where('estado', 'completada')
+                               ->with('usuario')
+                               ->groupBy('usuario_id')
+                               ->orderBy('total_recaudado', 'desc')
+                               ->limit(5)
+                               ->get();
+            
+            // === AUDITORÍA ===
+            $logsAuditoria = Auditoria::with('user')->orderBy('created_at', 'desc')->limit(5)->get();
+            
+            return view('dashboard', compact(
+                'usuarios',
+                'cajeros',
                 'totalProductos',
-                'facturasMes',
-                'ventasMes',
-                'productosBajoStock',
-                'topProductos',
-                'productosPorCategoria',
-                'facturasRecientes',
                 'productosSinStock',
-                'facturasPendientes',
-                'tasaConversion',
+                'productosBajoStock',
+                'ventasMes',
+                'totalRecaudadoMes',
+                'ticketPromedio',
+                'ventasHoy',
+                'recaudadoHoy',
+                'topProductos',
+                'top3Productos',
+                'turnosAbiertos',
+                'turnosHoy',
+                'ventasRecientes',
                 'ventasEsteMes',
                 'ventasMesPasado',
                 'dias',
-                'top3Productos',
+                'productosPorCategoria',
                 'movimientosRecientes',
                 'entradasSalidasDias',
-                'ultimosClientes',
+                'topCajeros',
                 'logsAuditoria'
             ));
         }
 
-                // CLIENTE: dashboard específico
+        // CLIENTE: No necesitan dashboard en sistema POS
         if ($user->hasRole('Cliente')) {
-            // Ahora el usuario ES el cliente directamente
-            $comprasCliente = Factura::where('cliente_id', $user->id)->count();
-            $facturasCliente = Factura::where('cliente_id', $user->id)->count();
-            $totalGastado = Factura::where('cliente_id', $user->id)->sum('total');
-            
-            return view('dashboard_cliente', compact('comprasCliente', 'facturasCliente', 'totalGastado'));
+            // En un sistema de punto de venta, los clientes no tienen acceso al sistema
+            // Solo se registran sus datos para tickets/ventas
+            abort(403, 'Los clientes no tienen acceso al dashboard. Este es un sistema interno de punto de venta.');
         }
 
         // SECRETARIO

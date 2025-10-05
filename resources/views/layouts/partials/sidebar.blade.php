@@ -55,16 +55,6 @@
         </li>
         @endhasanyrole
 
-        <!-- Facturación: solo Administrador y Ventas -->
-        @hasanyrole('Administrador|Ventas')
-        <li class="nav-item">
-            <a href="{{ route('facturas.index') }}" class="nav-link {{ request()->is('facturas*') ? 'active' : '' }}">
-                <i class="nav-icon bi bi-journal-text"></i>
-                <p>Facturación</p>
-            </a>
-        </li>
-        @endhasanyrole
-
         <!-- Caja (POS): solo Administrador y Ventas -->
         @hasanyrole('Administrador|Ventas')
         <li class="nav-item has-treeview {{ request()->is('caja*') ? 'menu-open' : '' }}">

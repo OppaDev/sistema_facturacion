@@ -5,11 +5,9 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\CategoriasController;
-use App\Http\Controllers\FacturasController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\FacturaEstadoController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\TurnosCajaController;
 
@@ -70,40 +68,6 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::post('categorias/{id}/restore', [CategoriasController::class, 'restore'])->name('categorias.restore');
         Route::post('categorias/{id}/forceDelete', [CategoriasController::class, 'forceDelete'])->name('categorias.forceDelete');
     });
-
-    // // Facturas: Solo Ventas y Administrador
-    // Route::middleware('role:Administrador|Ventas')->group(function () {
-    //     Route::get('/facturas', [FacturasController::class, 'index'])->name('facturas.index');
-    //     Route::get('/facturas/create', [FacturasController::class, 'create'])->name('facturas.create');
-    //     Route::post('/facturas', [FacturasController::class, 'store'])->name('facturas.store');
-    //     Route::get('/facturas/{factura}', [FacturasController::class, 'show'])->name('facturas.show');
-    //     Route::get('/facturas/{factura}/pdf', [FacturasController::class, 'downloadPDF'])->name('facturas.pdf');
-    //     Route::post('/facturas/{factura}/send-email', [FacturasController::class, 'sendEmail'])->name('facturas.sendEmail');
-    //     Route::post('/facturas/preview-pdf', [FacturasController::class, 'previewPDF'])->name('facturas.previewPdf');
-    //     Route::get('/facturas/debug-stock', [FacturasController::class, 'debugStock'])->name('facturas.debugStock');
-        
-    //     // Rutas con permisos específicos
-    //     Route::get('/facturas/{factura}/edit', [FacturasController::class, 'edit'])
-    //         ->name('facturas.edit')
-    //         ->middleware('factura.permissions:edit');
-    //     Route::put('/facturas/{factura}', [FacturasController::class, 'update'])
-    //         ->name('facturas.update')
-    //         ->middleware('factura.permissions:edit');
-    //     Route::delete('/facturas/{factura}', [FacturasController::class, 'destroy'])
-    //         ->name('facturas.destroy')
-    //         ->middleware('factura.permissions:delete');
-    //     Route::post('/facturas/{factura}/restore', [FacturasController::class, 'restore'])
-    //         ->name('facturas.restore')
-    //         ->middleware('factura.permissions:restore');
-    //     Route::post('/facturas/{factura}/force-delete', [FacturasController::class, 'forceDelete'])
-    //         ->name('facturas.forceDelete')
-    //         ->middleware('factura.permissions:forceDelete');
-        
-    //     // Rutas para firma y emisión de facturas
-    //     Route::post('/facturas/{factura}/firmar', [FacturaEstadoController::class, 'firmar'])->name('facturas.firmar');
-    //     Route::post('/facturas/{factura}/emitir', [FacturaEstadoController::class, 'emitir'])->name('facturas.emitir');
-    //     Route::get('/facturas/{factura}/estado', [FacturaEstadoController::class, 'estado'])->name('facturas.estado');
-    // });
 
     // Auditoría: Solo Administrador
     Route::get('/auditorias/export', [AuditoriaController::class, 'export'])
