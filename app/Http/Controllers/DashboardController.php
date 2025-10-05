@@ -26,6 +26,10 @@ class DashboardController extends Controller
             // === MÉTRICAS PRINCIPALES ===
             
             // Usuarios y cajeros
+            $clientesActivos = User::whereHas('roles', function($q) {
+                $q->where('name', 'Cliente');
+            })->where('estado', 'activo')->count();
+            
             $cajeros = User::whereHas('roles', function($q) {
                 $q->where('name', 'Ventas');
             })->where('estado', 'activo')->count();
@@ -156,6 +160,7 @@ class DashboardController extends Controller
             
             return view('dashboard', compact(
                 'usuarios',
+                'clientesActivos',
                 'cajeros',
                 'totalProductos',
                 'productosSinStock',
