@@ -94,7 +94,7 @@
                                     </div>
                                     <div class="col-md-3 col-6">
                                         <div class="bg-white rounded shadow-sm p-3 text-center">
-                                            <span class="text-muted small">IVA (15%)</span>
+                                            <span class="text-muted small">{{ iva_label() }}</span>
                                             <div class="fw-bold fs-5 text-primary" id="iva">$0.00</div>
                                         </div>
                                     </div>
@@ -552,8 +552,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Calcular IVA (15%)
-        const iva = subtotal * 0.15;
+        // Calcular IVA
+        const iva = subtotal * {{ iva_rate() }};
         const total = subtotal + iva;
         
         document.getElementById('totalProductos').textContent = totalProductos;
@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Calcular IVA y total
-        const iva = subtotal * 0.15;
+        const iva = subtotal * {{ iva_rate() }};
         const total = subtotal + iva;
         
         const fechaActual = new Date().toLocaleDateString('es-ES');

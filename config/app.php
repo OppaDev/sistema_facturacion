@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Tax Configuration
+    |--------------------------------------------------------------------------
+    |
+    | IVA (Impuesto al Valor Agregado) rate for the application.
+    | This value should be a decimal (e.g., 0.15 for 15%, 0.19 for 19%).
+    | Ecuador: 0.15 (15%), Colombia: 0.19 (19%), México: 0.16 (16%)
+    |
+    */
+
+    'iva_rate' => (float) env('IVA_RATE', 0.15),
+
 ];

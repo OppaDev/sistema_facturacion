@@ -10,6 +10,8 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FacturaEstadoController;
+use App\Http\Controllers\CajaController;
+use App\Http\Controllers\TurnosCajaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -69,39 +71,39 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::post('categorias/{id}/forceDelete', [CategoriasController::class, 'forceDelete'])->name('categorias.forceDelete');
     });
 
-    // Facturas: Solo Ventas y Administrador
-    Route::middleware('role:Administrador|Ventas')->group(function () {
-        Route::get('/facturas', [FacturasController::class, 'index'])->name('facturas.index');
-        Route::get('/facturas/create', [FacturasController::class, 'create'])->name('facturas.create');
-        Route::post('/facturas', [FacturasController::class, 'store'])->name('facturas.store');
-        Route::get('/facturas/{factura}', [FacturasController::class, 'show'])->name('facturas.show');
-        Route::get('/facturas/{factura}/pdf', [FacturasController::class, 'downloadPDF'])->name('facturas.pdf');
-        Route::post('/facturas/{factura}/send-email', [FacturasController::class, 'sendEmail'])->name('facturas.sendEmail');
-        Route::post('/facturas/preview-pdf', [FacturasController::class, 'previewPDF'])->name('facturas.previewPdf');
-        Route::get('/facturas/debug-stock', [FacturasController::class, 'debugStock'])->name('facturas.debugStock');
+    // // Facturas: Solo Ventas y Administrador
+    // Route::middleware('role:Administrador|Ventas')->group(function () {
+    //     Route::get('/facturas', [FacturasController::class, 'index'])->name('facturas.index');
+    //     Route::get('/facturas/create', [FacturasController::class, 'create'])->name('facturas.create');
+    //     Route::post('/facturas', [FacturasController::class, 'store'])->name('facturas.store');
+    //     Route::get('/facturas/{factura}', [FacturasController::class, 'show'])->name('facturas.show');
+    //     Route::get('/facturas/{factura}/pdf', [FacturasController::class, 'downloadPDF'])->name('facturas.pdf');
+    //     Route::post('/facturas/{factura}/send-email', [FacturasController::class, 'sendEmail'])->name('facturas.sendEmail');
+    //     Route::post('/facturas/preview-pdf', [FacturasController::class, 'previewPDF'])->name('facturas.previewPdf');
+    //     Route::get('/facturas/debug-stock', [FacturasController::class, 'debugStock'])->name('facturas.debugStock');
         
-        // Rutas con permisos específicos
-        Route::get('/facturas/{factura}/edit', [FacturasController::class, 'edit'])
-            ->name('facturas.edit')
-            ->middleware('factura.permissions:edit');
-        Route::put('/facturas/{factura}', [FacturasController::class, 'update'])
-            ->name('facturas.update')
-            ->middleware('factura.permissions:edit');
-        Route::delete('/facturas/{factura}', [FacturasController::class, 'destroy'])
-            ->name('facturas.destroy')
-            ->middleware('factura.permissions:delete');
-        Route::post('/facturas/{factura}/restore', [FacturasController::class, 'restore'])
-            ->name('facturas.restore')
-            ->middleware('factura.permissions:restore');
-        Route::post('/facturas/{factura}/force-delete', [FacturasController::class, 'forceDelete'])
-            ->name('facturas.forceDelete')
-            ->middleware('factura.permissions:forceDelete');
+    //     // Rutas con permisos específicos
+    //     Route::get('/facturas/{factura}/edit', [FacturasController::class, 'edit'])
+    //         ->name('facturas.edit')
+    //         ->middleware('factura.permissions:edit');
+    //     Route::put('/facturas/{factura}', [FacturasController::class, 'update'])
+    //         ->name('facturas.update')
+    //         ->middleware('factura.permissions:edit');
+    //     Route::delete('/facturas/{factura}', [FacturasController::class, 'destroy'])
+    //         ->name('facturas.destroy')
+    //         ->middleware('factura.permissions:delete');
+    //     Route::post('/facturas/{factura}/restore', [FacturasController::class, 'restore'])
+    //         ->name('facturas.restore')
+    //         ->middleware('factura.permissions:restore');
+    //     Route::post('/facturas/{factura}/force-delete', [FacturasController::class, 'forceDelete'])
+    //         ->name('facturas.forceDelete')
+    //         ->middleware('factura.permissions:forceDelete');
         
-        // Rutas para firma y emisión de facturas
-        Route::post('/facturas/{factura}/firmar', [FacturaEstadoController::class, 'firmar'])->name('facturas.firmar');
-        Route::post('/facturas/{factura}/emitir', [FacturaEstadoController::class, 'emitir'])->name('facturas.emitir');
-        Route::get('/facturas/{factura}/estado', [FacturaEstadoController::class, 'estado'])->name('facturas.estado');
-    });
+    //     // Rutas para firma y emisión de facturas
+    //     Route::post('/facturas/{factura}/firmar', [FacturaEstadoController::class, 'firmar'])->name('facturas.firmar');
+    //     Route::post('/facturas/{factura}/emitir', [FacturaEstadoController::class, 'emitir'])->name('facturas.emitir');
+    //     Route::get('/facturas/{factura}/estado', [FacturaEstadoController::class, 'estado'])->name('facturas.estado');
+    // });
 
     // Auditoría: Solo Administrador
     Route::get('/auditorias/export', [AuditoriaController::class, 'export'])
@@ -122,6 +124,71 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::post('/users/{user}/activar', [UserController::class, 'activarUsuario'])->name('users.activar');
         Route::post('/users/{user}/desactivar', [UserController::class, 'desactivarUsuario'])->name('users.desactivar');
         Route::post('/users/cancelar-borrado', [UserController::class, 'cancelarBorradoCuenta'])->name('users.cancelarBorradoCuenta');
+    });
+
+    // ============================================
+    // MÓDULO CAJA (Punto de Venta)
+    // Acceso: Solo Administrador y Ventas
+    // ============================================
+    Route::middleware('role:Administrador|Ventas')->prefix('caja')->name('caja.')->group(function () {
+        
+        // ==================== VENTAS ====================
+        
+        // Punto de Venta (POS) - Vista principal
+        Route::get('/pos', [CajaController::class, 'pos'])->name('pos');
+        
+        // Listado de ventas
+        Route::get('/', [CajaController::class, 'index'])->name('index');
+        
+        // Registrar venta (desde POS)
+        Route::post('/', [CajaController::class, 'store'])->name('store');
+        
+        
+        // ==================== TURNOS DE CAJA ====================
+        // IMPORTANTE: Turnos ANTES de las rutas con {id} para evitar conflictos
+        
+        Route::prefix('turnos')->name('turnos.')->group(function () {
+            
+            // Listado de turnos
+            Route::get('/', [TurnosCajaController::class, 'index'])->name('index');
+            
+            // Formulario para abrir turno
+            Route::get('/create', [TurnosCajaController::class, 'create'])->name('create');
+            
+            // Guardar nuevo turno (apertura)
+            Route::post('/', [TurnosCajaController::class, 'store'])->name('store');
+            
+            // Ver detalle de un turno
+            Route::get('/{id}', [TurnosCajaController::class, 'show'])->name('show');
+            
+            // Formulario para cerrar turno
+            Route::get('/{id}/cierre', [TurnosCajaController::class, 'cierre'])->name('cierre');
+            
+            // Procesar cierre de turno
+            Route::post('/{id}/cerrar', [TurnosCajaController::class, 'cerrar'])->name('cerrar');
+            
+            // Reporte PDF de cierre
+            Route::get('/{id}/reporte', [TurnosCajaController::class, 'reporteCierre'])->name('reporte');
+            
+            // Registrar movimiento de caja (solo Administrador)
+            Route::post('/{id}/movimientos', [TurnosCajaController::class, 'storeMovimiento'])
+                ->name('movimientos.store')
+                ->middleware('role:Administrador');
+        });
+        
+        
+        // ==================== RUTAS DE VENTAS CON {ID} ====================
+        // IMPORTANTE: Estas rutas van AL FINAL para evitar conflictos con /pos y /turnos
+        
+        // Ver detalle de una venta
+        Route::get('/{id}', [CajaController::class, 'show'])->name('show');
+        
+        // Anular venta (requiere contraseña)
+        Route::post('/{id}/anular', [CajaController::class, 'anular'])->name('anular');
+        
+        // Imprimir ticket (formato térmico)
+        Route::get('/{id}/ticket', [CajaController::class, 'ticket'])->name('ticket');
+        
     });
 
 });

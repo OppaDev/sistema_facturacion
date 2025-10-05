@@ -287,7 +287,7 @@
                                     <td class="text-center fw-bold">${{ number_format($factura->subtotal, 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="text-end fw-bold text-primary">IVA (15%):</td>
+                                    <td colspan="4" class="text-end fw-bold text-primary">{{ iva_label() }}:</td>
                                     <td class="text-center fw-bold text-primary">${{ number_format($factura->iva, 2) }}</td>
                                 </tr>
                                 <tr class="table-success">

@@ -65,6 +65,39 @@
         </li>
         @endhasanyrole
 
+        <!-- Caja (POS): solo Administrador y Ventas -->
+        @hasanyrole('Administrador|Ventas')
+        <li class="nav-item has-treeview {{ request()->is('caja*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ request()->is('caja*') ? 'active' : '' }}">
+                <i class="nav-icon bi bi-cart3" style="color: #ff0000;"></i>
+                <p>
+                    Caja (POS)
+                    <i class="right bi bi-chevron-down"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('caja.pos') }}" class="nav-link {{ request()->routeIs('caja.pos') ? 'active' : '' }}">
+                        <i class="bi bi-basket" style="font-size: 0.9rem; margin-left: 2rem;"></i>
+                        <p>Punto de Venta</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('caja.index') }}" class="nav-link {{ request()->routeIs('caja.index') || request()->routeIs('caja.show') ? 'active' : '' }}">
+                        <i class="bi bi-receipt" style="font-size: 0.9rem; margin-left: 2rem;"></i>
+                        <p>Ventas</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('caja.turnos.index') }}" class="nav-link {{ request()->is('caja/turnos*') ? 'active' : '' }}">
+                        <i class="bi bi-clock-history" style="font-size: 0.9rem; margin-left: 2rem;"></i>
+                        <p>Turnos de Caja</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        @endhasanyrole
+
         <!-- Auditoría: solo Administrador -->
         @role('Administrador')
         <li class="nav-item">

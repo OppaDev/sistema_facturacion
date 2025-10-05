@@ -165,7 +165,7 @@ class FacturasController extends Controller
             }
             
             // Calcular IVA y total
-            $iva = $subtotal * 0.15; // IVA 15%
+            $iva = calculate_iva($subtotal);
             $total = $subtotal + $iva;
             
             // Crear factura con datos SRI

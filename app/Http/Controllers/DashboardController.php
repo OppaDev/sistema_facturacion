@@ -143,14 +143,58 @@ class DashboardController extends Controller
 
         // VENTAS
         if ($user->hasRole('Ventas')) {
-            $facturasMes = \App\Models\Factura::whereMonth('created_at', now()->month)
+            // Usar el módulo de Caja
+            $ventasMes = \App\Models\Venta::whereMonth('created_at', now()->month)
                                   ->whereYear('created_at', now()->year)
+                                  ->where('estado', 'completada')
                                   ->count();
-            $ventasMes = \App\Models\Factura::whereMonth('created_at', now()->month)
+            
+            $totalRecaudado = \App\Models\Venta::whereMonth('created_at', now()->month)
                                ->whereYear('created_at', now()->year)
+                               ->where('estado', 'completada')
                                ->sum('total');
-            $ticketPromedio = $facturasMes > 0 ? $ventasMes / $facturasMes : 0;
-            return view('dashboard_ventas', compact('facturasMes', 'ventasMes', 'ticketPromedio'));
+            
+            $ticketPromedio = $ventasMes > 0 ? $totalRecaudado / $ventasMes : 0;
+            
+            // Turno actual del usuario
+            $turnoAbierto = \App\Models\TurnoCaja::where('usuario_id', $user->id)
+                                    ->where('estado', 'abierto')
+                                    ->first();
+            
+            // Ventas del turno actual
+            $ventasTurno = 0;
+            $totalTurno = 0;
+            if ($turnoAbierto) {
+                $ventasTurno = \App\Models\Venta::where('turno_id', $turnoAbierto->id)
+                                      ->where('estado', 'completada')
+                                      ->count();
+                $totalTurno = \App\Models\Venta::where('turno_id', $turnoAbierto->id)
+                                     ->where('estado', 'completada')
+                                     ->sum('total');
+            }
+            
+            // Top 5 productos más vendidos del mes
+            $topProductos = \App\Models\VentaDetalle::select('producto_id', \DB::raw('SUM(cantidad) as total_vendido'))
+                                     ->whereHas('venta', function($q) {
+                                         $q->whereMonth('created_at', now()->month)
+                                           ->whereYear('created_at', now()->year)
+                                           ->where('estado', 'completada');
+                                     })
+                                     ->with('producto')
+                                     ->groupBy('producto_id')
+                                     ->orderBy('total_vendido', 'desc')
+                                     ->limit(5)
+                                     ->get();
+            
+            return view('dashboard_ventas', compact(
+                'ventasMes', 
+                'totalRecaudado', 
+                'ticketPromedio', 
+                'turnoAbierto',
+                'ventasTurno',
+                'totalTurno',
+                'topProductos'
+            ));
         }
 
         // Si no tiene rol válido

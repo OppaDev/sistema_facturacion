@@ -212,10 +212,11 @@ class FacturaSRIService
      */
     public function calcularTotales(float $subtotal): array
     {
-        $iva = $subtotal * 0.15; // IVA 15%
-        $total = $subtotal + $iva;
-
-        return [
+        $subtotal = $factura->productos->sum(function ($producto) {
+            return $producto->pivot->cantidad * $producto->pivot->precio_unitario;
+        });
+        $iva = calculate_iva($subtotal);
+        $total = $subtotal + $iva;        return [
             'subtotal' => round($subtotal, 2),
             'iva' => round($iva, 2),
             'total' => round($total, 2)

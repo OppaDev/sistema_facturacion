@@ -103,16 +103,6 @@
               </a>
             </li>
 
-            {{-- <!-- Usuarios/Clientes -->
-            @role('Administrador|Secretario')
-            <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-              <a href="{{ route('users.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-user"></i>
-                <div class="text-truncate" data-i18n="Usuarios">Usuarios/Clientes</div>
-              </a>
-            </li>
-            @endrole --}}
-
             <!-- Productos -->
             @role('Administrador|Bodega')
             <li class="menu-item {{ request()->routeIs('productos.*') ? 'active' : '' }}">
@@ -134,12 +124,39 @@
             @endrole
 
             <!-- Facturas -->
-            @role('Administrador|Ventas')
+            {{-- @role('Administrador|Ventas')
             <li class="menu-item {{ request()->routeIs('facturas.*') ? 'active' : '' }}">
               <a href="{{ route('facturas.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-receipt"></i>
                 <div class="text-truncate" data-i18n="Facturas">Facturas</div>
               </a>
+            </li>
+            @endrole --}}
+
+            <!-- Caja (POS) -->
+            @role('Administrador|Ventas')
+            <li class="menu-item {{ request()->is('caja*') ? 'active open' : '' }}">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-cart"></i>
+                <div class="text-truncate" data-i18n="Caja">Caja (POS)</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('caja.pos') ? 'active' : '' }}">
+                  <a href="{{ route('caja.pos') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Punto de Venta">Punto de Venta</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('caja.index') || request()->routeIs('caja.show') ? 'active' : '' }}">
+                  <a href="{{ route('caja.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Ventas">Ventas</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('caja/turnos*') ? 'active' : '' }}">
+                  <a href="{{ route('caja.turnos.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Turnos">Turnos de Caja</div>
+                  </a>
+                </li>
+              </ul>
             </li>
             @endrole
 

@@ -6,118 +6,138 @@
     <title>Factura {{ $factura->getNumeroFormateado() }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0 0 20px 0;
-            color: #232c47;
+            color: #ffffff;
             font-size: 12px;
-            background: #f8f9fa;
+            background: #000000;
         }
         .pdf-container {
             max-width: 900px;
             margin: 0 auto;
-            background: #fff;
+            background: #000000;
+            border: 3px solid #ff0000;
             border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.07);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
             padding: 30px 30px 20px 30px;
         }
         .header {
-            display: flex;
-            align-items: center;
-            border-bottom: 3px solid #007bff;
-            padding-bottom: 18px;
-            margin-bottom: 18px;
-        }
-        .logo {
-            width: 70px;
-            height: 70px;
-            margin-right: 18px;
+            width: 100%;
+            background: #ff0000;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         .company-info {
-            flex: 1;
+            width: 100%;
         }
         .company-name {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
-            color: #007bff;
-            margin-bottom: 2px;
+            color: #ffffff;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
         .company-details {
-            font-size: 12px;
-            color: #666;
+            font-size: 11px;
+            color: #ffffff;
+            opacity: 0.9;
         }
         .invoice-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-            color: #232c47;
-            margin: 18px 0 10px 0;
+            color: #ff0000;
+            margin: 20px 0 15px 0;
             text-align: center;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
         .badge {
             display: inline-block;
-            padding: 2px 10px;
+            padding: 3px 12px;
             border-radius: 8px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: #fff;
-            background: #007bff;
+            background: #ff0000;
             margin-left: 8px;
         }
         .badge-success { background: #28a745; }
-        .badge-warning { background: #ffc107; color: #232c47; }
+        .badge-warning { background: #ffc107; color: #000000; }
         .badge-danger { background: #dc3545; }
         .badge-info { background: #17a2b8; }
         .badge-secondary { background: #6c757d; }
         .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
         }
         .col {
-            flex: 1;
-            min-width: 220px;
-            padding: 0 10px;
+            width: 32%;
+            float: left;
+            margin-right: 2%;
+            min-height: 1px;
+        }
+        .col:last-child {
+            margin-right: 0;
         }
         .card {
-            background: #f8f9fa;
+            background: rgba(255, 0, 0, 0.05);
             border-radius: 8px;
             padding: 15px 18px;
             margin-bottom: 18px;
-            border: 1px solid #e3e6f0;
+            border: 2px solid rgba(255, 0, 0, 0.3);
         }
         .card-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
-            color: #007bff;
-            margin-bottom: 8px;
+            color: #ff0000;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .info-row {
-            margin-bottom: 5px;
-            font-size: 12px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #ffffff;
         }
         .info-label {
             font-weight: bold;
-            color: #232c47;
+            color: #ff0000;
+            text-transform: uppercase;
+            font-size: 10px;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
             margin: 18px 0 0 0;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
         }
         .table th {
-            background: #007bff;
-            color: #fff;
-            padding: 10px 6px;
-            font-size: 12px;
+            background: #ff0000;
+            color: #ffffff;
+            padding: 12px 8px;
+            font-size: 11px;
             text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
         }
         .table td {
-            padding: 8px 6px;
-            border-bottom: 1px solid #e3e6f0;
-            font-size: 12px;
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.2);
+            font-size: 11px;
+            color: #ffffff;
         }
-        .table tr:nth-child(even) { background: #f4f8fb; }
+        .table tr:nth-child(even) { background: rgba(255, 0, 0, 0.03); }
         .product-img {
             width: 36px;
             height: 36px;
@@ -128,134 +148,185 @@
         }
         .product-name {
             font-weight: bold;
-            color: #232c47;
+            color: #ffffff;
         }
         .product-desc {
-            color: #666;
-            font-size: 10px;
+            color: #cccccc;
+            font-size: 9px;
         }
         .quantity-badge {
             display: inline-block;
-            background: #007bff;
-            color: #fff;
+            background: #ff0000;
+            color: #ffffff;
             border-radius: 8px;
-            padding: 2px 8px;
+            padding: 3px 10px;
             font-size: 11px;
             font-weight: bold;
         }
         .price {
             text-align: right;
             font-weight: bold;
+            color: #ffffff;
         }
         .total-section {
             text-align: right;
-            margin-top: 18px;
+            margin-top: 20px;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
         }
         .total-row {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-size: 13px;
+            color: #ffffff;
         }
         .total-amount {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            color: #007bff;
+            color: #ff0000;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid rgba(255, 0, 0, 0.5);
         }
         .qr-section {
-            display: flex;
-            align-items: flex-start;
-            gap: 30px;
+            width: 100%;
             margin: 30px 0 10px 0;
         }
+        .qr-section:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
         .qr-block {
+            width: 30%;
+            float: left;
             text-align: center;
-            flex: 1;
+            margin-right: 3%;
+        }
+        .qr-block-title {
+            font-weight: bold;
+            color: #ff0000;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .qr-image {
             width: 120px;
             height: 120px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            padding: 5px;
+            background: #ffffff;
         }
         .firma-block {
-            flex: 2;
-            background: #f8f9fa;
+            width: 65%;
+            float: left;
+            background: rgba(255, 0, 0, 0.05);
             border-radius: 8px;
-            border: 1px solid #e3e6f0;
-            padding: 10px 18px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            padding: 12px 18px;
         }
         .firma-title {
-            color: #007bff;
-            font-size: 13px;
+            color: #ff0000;
+            font-size: 12px;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .firma-status {
             display: inline-block;
             background: #28a745;
-            color: #fff;
-            font-size: 11px;
+            color: #ffffff;
+            font-size: 10px;
             font-weight: bold;
             border-radius: 5px;
-            padding: 2px 10px;
-            margin-bottom: 5px;
+            padding: 3px 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
         .firma-status-pendiente {
             background: #ffc107;
-            color: #232c47;
+            color: #000000;
         }
         .firma-desc {
-            color: #28a745;
-            font-size: 10px;
-            margin-bottom: 4px;
+            color: #cccccc;
+            font-size: 9px;
+            margin-bottom: 6px;
         }
         .firma-datos {
-            font-size: 9px;
+            font-size: 8px;
             word-break: break-all;
-            background: #f8f9fa;
-            padding: 6px;
-            border-radius: 3px;
-            border: 1px solid #dee2e6;
-            margin-top: 7px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            margin-top: 8px;
+            color: #cccccc;
         }
         .qr-content {
-            font-size: 9px;
-            color: #b30059;
-            background: #f8f9fa;
-            border: 1px solid #ffeaa7;
+            font-size: 8px;
+            color: #ff0000;
+            background: rgba(255, 0, 0, 0.05);
+            border: 2px solid rgba(255, 0, 0, 0.3);
             border-radius: 5px;
-            padding: 6px;
-            margin-top: 8px;
+            padding: 8px;
+            margin-top: 10px;
             word-break: break-all;
         }
         .legal {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px 0 0 0;
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 15px 0 0 0;
             font-size: 10px;
-            color: #856404;
+            color: #ffffff;
             text-align: center;
         }
         .footer {
             margin-top: 30px;
             text-align: center;
-            font-size: 11px;
-            color: #666;
-            border-top: 1px solid #e3e6f0;
-            padding-top: 12px;
+            font-size: 10px;
+            color: #cccccc;
+            border-top: 2px solid rgba(255, 0, 0, 0.5);
+            padding-top: 15px;
+        }
+        .qr-block {
+            text-align: center;
+            flex: 1;
+        }
+        .qr-block div:first-child {
+            font-weight: bold;
+            color: #ff0000;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .qr-image {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 8px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            padding: 5px;
+            background: #ffffff;
         }
     </style>
 </head>
 <body>
 <div class="pdf-container">
     <div class="header">
-        <img src="{{ public_path('img/logo.png') }}" class="logo" alt="Logo SowarTech">
         <div class="company-info">
-            <div class="company-name">SowarTech</div>
+            <div class="company-name">INFERNO CLUB</div>
             <div class="company-details">
+                Bebidas Alcohólicas y Cócteles Premium<br>
                 Quito, El Condado, Pichincha<br>
-                RUC: 1728167857001<br>
-                Email: info@sowartech.com
+                RUC: 1728167857001 | Email: facturacion@infernoclub.com
             </div>
         </div>
     </div>
@@ -324,10 +395,10 @@
     </div>
     <div class="qr-section">
         <div class="qr-block">
-            <div style="font-weight: bold; color: #007bff; font-size: 13px; margin-bottom: 6px;">Código QR SRI</div>
+            <div class="qr-block-title">Código QR SRI</div>
             @if($factura->qr_code)
                 <img src="data:image/png;base64,{{ $factura->qr_code }}" class="qr-image" alt="QR Code">
-                <div style="font-size: 10px; color: #666;">Escanee para verificar autenticidad</div>
+                <div style="font-size: 9px; color: #cccccc;">Escanee para verificar autenticidad</div>
             @else
                 <div style="font-size: 10px; color: #dc3545;">QR no disponible</div>
             @endif
@@ -350,12 +421,14 @@
         </div>
     </div>
     <div class="legal">
-        <strong>AVISO:</strong> Esta factura electrónica ha sido generada por el Sistema de Rentas Internas del Ecuador. La firma digital y el código QR garantizan la autenticidad e integridad del documento. Cualquier modificación invalidará la factura.
+        <strong>AVISO IMPORTANTE:</strong> Esta factura electrónica ha sido generada por el Sistema de Rentas Internas del Ecuador. La firma digital y el código QR garantizan la autenticidad e integridad del documento. Cualquier modificación invalidará la factura.
     </div>
     <div class="footer">
-        <p><strong>SowarTech</strong> - Sistema de Facturación Electrónica</p>
-        <p>Esta factura cumple con los requisitos del SRI de Ecuador</p>
-        <p>Generado el {{ now()->format('d/m/Y H:i:s') }}</p>
+        <p style="font-size: 16px; font-weight: bold; color: #ff0000; margin-bottom: 8px;">INFERNO CLUB</p>
+        <p style="color: #ffffff; font-weight: bold;">Sistema de Facturación Electrónica</p>
+        <p style="font-size: 9px; margin-top: 8px;">Esta factura cumple con los requisitos del SRI de Ecuador</p>
+        <p style="font-size: 9px;">Generado el {{ now()->format('d/m/Y H:i:s') }}</p>
+        <p style="font-size: 9px; margin-top: 10px; color: #888888;">Consumo responsable. Prohibida la venta a menores de edad.</p>
     </div>
 </div>
 </body>

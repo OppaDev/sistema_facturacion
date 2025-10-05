@@ -22,7 +22,7 @@
   <div class="card mb-4 animate__animated animate__fadeInDown">
     <div class="card-body d-flex align-items-center justify-content-between">
       <div>
-        <h4 class="mb-1">¡Bienvenido {{ Auth::user()->name }}! 🎉</h4>
+        <h4 class="mb-1">¡Bienvenido {{ Auth::user()->name }}!</h4>
         <p class="mb-2 text-muted">Panel general de tu sistema de inventario y facturación.</p>
       </div>
       <span class="dashboard-admin-welcome-icon">

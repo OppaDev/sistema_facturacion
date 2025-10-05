@@ -14,27 +14,21 @@ class CategoriasSeeder extends Seeder
     public function run(): void
     {
         Categoria::create([
-            'nombre' => 'Electrónicos',
-            'descripcion' => 'Productos electrónicos y tecnología',
-            'color' => '#007bff',
+            'nombre' => 'Vinos',
+            'descripcion' => 'Vinos tintos, blancos y rosados',
+            'color' => '#722f37',
             'activo' => true,
         ]);
         Categoria::create([
-            'nombre' => 'Accesorios',
-            'descripcion' => 'Accesorios para computadoras',
-            'color' => '#28a745',
+            'nombre' => 'Cervezas',
+            'descripcion' => 'Cervezas nacionales e importadas',
+            'color' => '#f4a261',
             'activo' => true,
         ]);
         Categoria::create([
-            'nombre' => 'Periféricos',
-            'descripcion' => 'Periféricos de computadora',
-            'color' => '#ffc107',
-            'activo' => true,
-        ]);
-        Categoria::create([
-            'nombre' => 'Software',
-            'descripcion' => 'Software y licencias',
-            'color' => '#dc3545',
+            'nombre' => 'Licores',
+            'descripcion' => 'Licores y destilados',
+            'color' => '#264653',
             'activo' => true,
         ]);
     }
