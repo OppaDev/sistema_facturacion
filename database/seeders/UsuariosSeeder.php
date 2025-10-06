@@ -24,31 +24,31 @@ class UsuariosSeeder extends Seeder
         ]);
         $admin->assignRole('Administrador');
 
-        // Crear usuario secretario
-        $secretario = User::create([
-            'name' => 'Secretario',
-            'email' => 'secretario@gmail.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-        $secretario->assignRole('Secretario');
+        // // Crear usuario secretario
+        // $secretario = User::create([
+        //     'name' => 'Secretario',
+        //     'email' => 'secretario@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'email_verified_at' => now(),
+        // ]);
+        // $secretario->assignRole('Secretario');
 
-        // Crear usuario bodega
-        $bodega = User::create([
-            'name' => 'Bodega',
-            'email' => 'bodega@gmail.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-        $bodega->assignRole('Bodega');
+        // // Crear usuario bodega
+        // $bodega = User::create([
+        //     'name' => 'Bodega',
+        //     'email' => 'bodega@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'email_verified_at' => now(),
+        // ]);
+        // $bodega->assignRole('Bodega');
 
-        // Crear usuario ventas
-        $ventas = User::create([
-            'name' => 'Ventas',
-            'email' => 'ventas@gmail.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-        $ventas->assignRole('Ventas');
+        // // Crear usuario ventas
+        // $ventas = User::create([
+        //     'name' => 'Ventas',
+        //     'email' => 'ventas@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'email_verified_at' => now(),
+        // ]);
+        // $ventas->assignRole('Ventas');
     }
 }

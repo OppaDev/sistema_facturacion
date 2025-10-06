@@ -2,11 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Factura;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Mail\Message;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -121,63 +117,6 @@ class MailerooService
     }
 
     /**
-     * Enviar factura por email
-     */
-    public function enviarFactura(Factura $factura, string $email, string $asunto, string $mensaje): array
-    {
-        try {
-            // Verificar que la factura esté emitida
-            if (!$factura->isEmitida()) {
-                return [
-                    'success' => false,
-                    'message' => 'La factura debe estar emitida antes de enviar por email'
-                ];
-            }
-
-            // Generar PDF de la factura
-            $pdfContent = $this->generarPDFFactura($factura);
-            
-            $htmlContent = view('emails.factura', [
-                'factura' => $factura,
-                'cliente' => $factura->cliente,
-                'mensaje' => $mensaje
-            ])->render();
-
-            $attachments = [];
-            
-            if ($pdfContent) {
-                $attachments[] = [
-                    'name' => 'factura_' . $factura->getNumeroFormateado() . '.pdf',
-                    'content' => base64_encode($pdfContent),
-                    'type' => 'application/pdf'
-                ];
-            }
-
-            Log::info('Iniciando envío de factura por email (HTTP API Maileroo)', [
-                'factura_id' => $factura->id,
-                'email_destino' => $email,
-                'usuario' => Auth::user()->fullName ?? 'Sistema',
-                'mensaje_incluido' => !empty($mensaje)
-            ]);
-
-            return $this->sendEmail($email, $asunto, $mensaje, $htmlContent, $attachments);
-
-        } catch (\Exception $e) {
-            Log::error('Error enviando factura por email via Maileroo HTTP API', [
-                'factura_id' => $factura->id,
-                'email' => $email,
-                'error' => $e->getMessage()
-            ]);
-
-            return [
-                'success' => false,
-                'message' => 'Error enviando factura: ' . $e->getMessage(),
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
      * Verificar el estado de la conexión con Maileroo
      */
     public function testConnection()
@@ -220,21 +159,5 @@ class MailerooService
                 'note' => 'Las estadísticas requieren acceso al panel de Maileroo'
             ]
         ];
-    }
-
-    /**
-     * Generar PDF de la factura
-     */
-    private function generarPDFFactura(Factura $factura): string
-    {
-        try {
-            $html = view('facturas.pdf', compact('factura'))->render();
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
-            $pdf->setPaper('A4', 'portrait');
-            return $pdf->output();
-        } catch (\Exception $e) {
-            Log::error("Error generando PDF para factura #{$factura->id}: " . $e->getMessage());
-            throw $e;
-        }
     }
 }

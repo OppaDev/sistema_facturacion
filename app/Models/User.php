@@ -124,6 +124,14 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
+     * Send the email verification notification.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\VerifyEmailNotification);
+    }
+
+    /**
      * Verificar si el usuario tiene rol de cliente
      */
     public function esCliente()
