@@ -4,7 +4,7 @@
 
 ### Identificación del Proyecto
 - **Nombre**: Sistema de Inventario y Facturación Laravel 11+
-- **Versión**: 3.3.0 (Sistema Web Completo - Estados Simplificados)
+- **Versión**: 3.3.1 (Sistema Web Completo - Arquitectura Laravel 12)
 - **Framework**: Laravel 12.0 (basado en composer.json)
 - **PHP**: ^8.2
 - **Base de Datos**: PostgreSQL / MySQL (soporta ambas)
@@ -21,7 +21,17 @@
 - Sistema de notificaciones y emails
 
 ### ⚠️ CAMBIOS IMPORTANTES - HISTORIAL DE VERSIONES
-**Última Actualización**: Octubre 2, 2025
+**Última Actualización**: Octubre 5, 2025
+
+**VERSIÓN 3.3.1 - ELIMINACIÓN DE KERNEL.PHP OBSOLETO:**
+Por actualización a arquitectura Laravel 12 y limpieza de código:
+- ❌ Archivo `app/Http/Kernel.php` eliminado (Laravel 10 legacy)
+- ❌ Referencias a middleware API eliminadas (SecurityValidator, ApiAuditLogger, etc.)
+- ✅ Configuración migrada a `bootstrap/app.php` (Laravel 12 estándar)
+- ✅ Middleware custom `CheckUserStatus` correctamente registrado
+- ✅ 86 rutas funcionando correctamente
+- ✅ **Total**: 1 archivo eliminado, ~71 líneas, 7 referencias muertas eliminadas
+- 📄 **Ver**: `ELIMINACION_KERNEL_OBSOLETO.md` para detalles completos
 
 **VERSIÓN 3.3.0 - SIMPLIFICACIÓN DE ESTADOS DE FACTURA:**
 Por alineación con la lógica de negocio (facturas se crean después del pago):

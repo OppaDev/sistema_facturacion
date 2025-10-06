@@ -5,28 +5,22 @@
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
   <!-- Header -->
-  <div class="row">
-    <div class="col-12                            </td>
-                            <td class="text-end">
-                    <div class="dropdown">
-                      <button type="button" class="btn btn-sm btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow" 
-                              data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bx bx-dots-vertical-rounded"></i>
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-end">  <div class="page-title d-flex flex-column justify-content-center flex-sm-row my-0">
-        <div class="page-title-content">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center">
+        <div>
           <h4 class="mb-1">
             <span class="text-muted fw-light">Sistema /</span> Usuarios
           </h4>
           <p class="text-muted mb-0">Gestión completa de usuarios del sistema</p>
         </div>
-        <div class="page-title-actions ms-auto">
-          @if($filtro != 'eliminados')
+        @if($filtro != 'eliminados')
+          <div class="mt-3 mt-sm-0">
             <a href="{{ route('users.create') }}" class="btn btn-primary">
               <i class="bx bx-user-plus me-1"></i> Nuevo Usuario
             </a>
-          @endif
-        </div>
+          </div>
+        @endif
       </div>
     </div>
   </div>
