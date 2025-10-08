@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             UsuariosSeeder::class,
             CategoriasSeeder::class,
-            ClientesSeeder::class, // Ahora crea usuarios con rol Cliente
+            ClientesSeeder::class,
             ProductosSeeder::class,
         ]);
     }

@@ -13,23 +13,23 @@ class CategoriasSeeder extends Seeder
      */
     public function run(): void
     {
-        Categoria::create([
-            'nombre' => 'Vinos',
-            'descripcion' => 'Vinos tintos, blancos y rosados',
-            'color' => '#722f37',
-            'activo' => true,
-        ]);
-        Categoria::create([
-            'nombre' => 'Cervezas',
-            'descripcion' => 'Cervezas nacionales e importadas',
-            'color' => '#f4a261',
-            'activo' => true,
-        ]);
-        Categoria::create([
-            'nombre' => 'Licores',
-            'descripcion' => 'Licores y destilados',
-            'color' => '#264653',
-            'activo' => true,
-        ]);
+        // Categoria::create([
+        //     'nombre' => 'Vinos',
+        //     'descripcion' => 'Vinos tintos, blancos y rosados',
+        //     'color' => '#722f37',
+        //     'activo' => true,
+        // ]);
+        // Categoria::create([
+        //     'nombre' => 'Cervezas',
+        //     'descripcion' => 'Cervezas nacionales e importadas',
+        //     'color' => '#f4a261',
+        //     'activo' => true,
+        // ]);
+        // Categoria::create([
+        //     'nombre' => 'Licores',
+        //     'descripcion' => 'Licores y destilados',
+        //     'color' => '#264653',
+        //     'activo' => true,
+        // ]);
     }
 }

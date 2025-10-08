@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::post('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
     });
 
-    // Rutas de exportar y reportes (deben ir antes del resource para evitar conflicto)
+    // Rutas de exportar y reportes
     Route::middleware('role:Administrador|Bodega')->group(function () {
         Route::get('productos/export/{type}', [ProductosController::class, 'export'])->name('productos.export');
         Route::get('productos/reporte', [ProductosController::class, 'reporte'])->name('productos.reporte');
@@ -109,7 +109,6 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         
         
         // ==================== TURNOS DE CAJA ====================
-        // IMPORTANTE: Turnos ANTES de las rutas con {id} para evitar conflictos
         
         Route::prefix('turnos')->name('turnos.')->group(function () {
             
