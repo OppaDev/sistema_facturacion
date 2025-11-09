@@ -13,15 +13,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Registrar comandos de testing solo en entornos de desarrollo
-        if (app()->environment(['local', 'testing', 'development'])) {
-            $this->commands([
-                \App\Console\Commands\Testing\TestMaileroo::class,
-                \App\Console\Commands\Testing\TestResend::class,
-                \App\Console\Commands\Testing\TestEmailVerification::class,
-                \App\Console\Commands\Testing\TestEmailVerificationSend::class,
-            ]);
-        }
     }
 
     /**
